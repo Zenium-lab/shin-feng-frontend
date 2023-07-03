@@ -1,8 +1,16 @@
 <script setup lang="ts">
+import { watch, ref } from 'vue';
 import { RouterLink, RouterView } from 'vue-router';
 import { useRoute } from 'vue-router';
 const route = useRoute();
-const isLoginPage = route.path === '/login';
+let isLoginPage = ref(route.path === '/login');
+watch(
+	() => route.path,
+	(newPath: string) => {
+		isLoginPage.value = newPath === '/login';
+		console.log(newPath);
+	}
+);
 </script>
 
 <template>
