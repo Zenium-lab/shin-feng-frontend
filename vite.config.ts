@@ -11,7 +11,9 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      'images': fileURLToPath(new URL('./public/images', import.meta.url)),
+      'svgs': fileURLToPath(new URL('./public/svgs', import.meta.url)),
     }
   }
 })
