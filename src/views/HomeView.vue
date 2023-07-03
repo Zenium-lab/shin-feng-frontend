@@ -210,6 +210,6 @@ const filteredVideoList = computed(() => {
 		/>
 	</div>
 	<div class="mt-6 flex flex-col justify-center gap-10">
-		<VideoCard v-for="(video, id) in filteredVideoList" :key="id" :video="video" />
+		<VideoCard v-for="video in filteredVideoList" :key="video.id" :video="video" />
 	</div>
 </template>

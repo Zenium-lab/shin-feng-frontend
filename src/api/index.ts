@@ -157,10 +157,25 @@ export const cancelCreateVideo = (videoId: number) => {
 	return API.delete<void>(`/videos/cancel/${videoId}`);
 };
 
+function extractIPAddressAndPort(url: string): string | null {
+	const regex = /^(https?:\/\/)?([\d.]+)(?::(\d+))?/;
+	const match = url.match(regex);
+
+	if (match) {
+		const ipAddress = match[2];
+		const port = match[3] ? `:${match[3]}` : '';
+		return ipAddress + port;
+	}
+
+	return null;
+}
+
 // 建立 websocket 連線取得製作進度
 export const getVideoProgress = (videoId: number): WebSocket => {
 	const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-	const url = `${protocol}//${window.location.host}/videos/progress/${videoId}`;
+	const origin = extractIPAddressAndPort(import.meta.env.VITE_BASE_URL);
+	if (origin === null) throw new Error('Invalid base URL');
+	const url = `${protocol}//${origin}/api/v1/videos/progress?videoId=${videoId}`;
 	return new WebSocket(url);
 };
 

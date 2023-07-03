@@ -51,12 +51,14 @@
 			<div v-if="props.video.status === '處理中'" class="flex w-full items-center justify-between px-6 py-1">
 				<div class="grid w-3/4 grid-cols-4">
 					<div class="col-span-3 h-6 rounded-lg bg-gray-200">
-						<div class="h-full rounded-lg bg-yellow-300" :style="{ width: progress.progress + '%' }"></div>
+						<div class="h-full rounded-lg bg-yellow-300" :style="{ width: `${progress.progress}%` }"></div>
 					</div>
 					<button class="col-span-1 mx-4 rounded-lg bg-yellow-400 px-3 py-1 text-xs font-normal text-black hover:bg-yellow-500">取消</button>
 				</div>
 				<div class="ml-4 flex w-1/4 items-center justify-center gap-4">
-					<div class="text-[1rem] font-normal leading-tight text-black">(10/50) {{ progress.progress }}%</div>
+					<div class="text-[1rem] font-normal leading-tight text-black">
+						{{ progress.progress }}% ({{ progress.elapsed }}s/{{ progress.remain }}s)
+					</div>
 				</div>
 			</div>
 		</div>
@@ -84,25 +86,34 @@ const progress: Progress = reactive({
 // 如果現在狀態是處理中，定期使用websocket拿progress
 let websocket: WebSocket;
 if (props.video.status === '處理中') {
-	const websocket = API.getVideoProgress(props.video.id);
-	websocket.onopen = () => {
-		console.log('websocket connected');
-	};
-	websocket.onmessage = (event) => {
-		const progressMessage: Progress = JSON.parse(event.data);
-		if (progressMessage.videoId === props.video.id) {
-			// 更新進度
-			progress.progress = progressMessage.progress;
-			progress.elapsed = progressMessage.elapsed;
-			progress.remain = progressMessage.remain;
-		}
-	};
-	websocket.onclose = () => {
-		console.log('websocket disconnected');
-	};
-	websocket.onerror = (event) => {
-		console.error(event);
-	};
+	try {
+		const websocket = API.getVideoProgress(props.video.id);
+		websocket.onopen = () => {
+			console.log('websocket connected');
+		};
+		websocket.onmessage = (event) => {
+			try {
+				const progressMessage: Progress = JSON.parse(event.data);
+				if (progressMessage.videoId === props.video.id) {
+					// 更新進度
+					progress.progress = progressMessage.progress;
+					progress.elapsed = progressMessage.elapsed;
+					progress.remain = progressMessage.remain;
+				}
+			} catch (err: unknown) {
+				console.error('websocket message parse error', err);
+			}
+		};
+		websocket.onclose = (event) => {
+			console.log(event);
+			console.log('websocket disconnected');
+		};
+		websocket.onerror = (event) => {
+			console.error(event);
+		};
+	} catch (err: unknown) {
+		console.error(err);
+	}
 }
 onUnmounted(() => {
 	if (websocket) websocket.close();
