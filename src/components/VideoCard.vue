@@ -110,6 +110,10 @@ if (props.video.status === '處理中') {
 					progress.elapsed = progressMessage.elapsed;
 					progress.remain = progressMessage.remain;
 				}
+				if (progressMessage.progress === 100) {
+					// TODO: emit event to update this video status
+					websocket.close();
+				}
 			} catch (err: unknown) {
 				console.error('websocket message parse error', err);
 			}
