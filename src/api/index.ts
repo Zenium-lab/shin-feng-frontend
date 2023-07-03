@@ -47,7 +47,7 @@ API.interceptors.response.use(
 );
 // 登入
 export const login = (requestData: LoginRequest) => {
-    return API.post<LoginResponse>('/login', requestData);
+    return API.post<LoginResponse>('/users/login', requestData);
 };
 
 

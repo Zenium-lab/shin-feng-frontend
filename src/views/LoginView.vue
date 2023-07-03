@@ -42,14 +42,14 @@ const handleLogin = async () => {
 					<div class="h-6 w-6">
 						<img src="svgs/account.svg" alt="Account" class="h-full w-full" />
 					</div>
-					<input type="text" placeholder="Username" class="ml-2 flex-grow bg-transparent focus:outline-none" />
+					<input v-model="username" type="text" placeholder="帳號" class="ml-2 flex-grow bg-transparent focus:outline-none" />
 				</div>
 				<!-- Password 欄位 -->
 				<div class="flex items-center rounded-md border border-black px-4 py-2">
 					<div class="h-6 w-6">
 						<img src="svgs/lock.svg" alt="Account" class="h-full w-full" />
 					</div>
-					<input type="password" placeholder="Password" class="ml-2 flex-grow bg-transparent focus:outline-none" />
+					<input v-model="password" type="password" placeholder="密碼" class="ml-2 flex-grow bg-transparent focus:outline-none" />
 				</div>
 			</div>
 			<!-- 登入按鈕 -->
