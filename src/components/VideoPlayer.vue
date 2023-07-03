@@ -4,7 +4,11 @@
 			<div class="flex aspect-video items-center justify-center lg:col-span-2">
 				<!-- 影片播放 iframe -->
 				<template v-if="videoUrl">
-					<video ref="videoPlayer" class="h-full w-full rounded-lg" :src="videoUrl" controls></video>
+					<!-- <video class="h-full w-full rounded-lg" :src="videoUrl" controls></video> -->
+					<video controls class="h-full w-full rounded-lg">
+						<source :src="videoUrl" type="video/mp4" />
+						Your browser does not support the video tag.
+					</video>
 				</template>
 				<template v-else>
 					<!-- 顯示骨架屏或替代內容 -->
@@ -35,11 +39,11 @@ import { useRoute } from 'vue-router';
 import * as API from '@/api';
 import { timestampToTime } from '@/utils/date';
 const route = useRoute();
-const videoId = route.params.id as string;
+const videoId = parseInt(route.params.id as string);
 
 // 取得該影片細節
 const getVideoDetail = async () => {
-	const res = await API.getVideoById(parseInt(videoId));
+	const res = await API.getVideoById(videoId);
 	const video = res.data;
 	return {
 		creator: video.creator_name,
@@ -49,20 +53,10 @@ const getVideoDetail = async () => {
 	};
 };
 // 下載影片
-const videoPlayer = ref(null);
 let videoUrl = ref<string>();
 
-const downloadVideoById = async (videoId: string) => {
-	try {
-		const video = await API.downloadVideoById(parseInt(videoId));
-		// 设置Video元素的src属性为Blob URL
-		videoUrl.value = URL.createObjectURL(video);
-		// 释放URL资源
-		URL.revokeObjectURL(videoUrl.value);
-	} catch (error) {
-		console.log(error);
-		return '';
-	}
+const getVideoSrc = async () => {
+	return `${import.meta.env.VITE_BASE_URL}/api/v1/videos/download/${videoId}`;
 };
 const creator = ref();
 const creationTime = ref();
@@ -76,7 +70,8 @@ onMounted(async () => {
 		creationTime.value = videoDetail.creationTime;
 		startTime.value = videoDetail.startTime;
 		endTime.value = videoDetail.endTime;
-		videoUrl.value = await downloadVideoById(videoId);
+		videoUrl.value = await getVideoSrc();
+		console.log(videoUrl.value);
 	} catch (error) {
 		console.error(error);
 	}
