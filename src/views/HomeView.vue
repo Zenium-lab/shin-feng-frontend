@@ -226,7 +226,7 @@ const filteredVideoList = computed(() => {
 			@click="selectStatus(status.statusName)"
 		/>
 	</div>
-	<div class="mt-6 flex flex-col justify-center gap-10">
+	<div class="mt-6 flex flex-col justify-center gap-5">
 		<VideoCard
 			@update-video-status="(videoId, status) => updateStatus(videoId, status)"
 			v-for="video in filteredVideoList"

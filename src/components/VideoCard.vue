@@ -1,14 +1,18 @@
 <template>
-	<div class="= flex h-auto w-full flex-col items-center justify-start rounded-md border border-black border-opacity-10 lg:flex-row">
+	<div class="flex h-auto w-full flex-col items-center justify-start rounded-md border border-gray-100 border-opacity-10 py-2 shadow-md lg:flex-row">
 		<!-- 照片 -->
-		<div class="flex w-full items-center justify-center gap-4 rounded-md p-4 lg:w-1/3">
-			<div class="relative h-[150px] w-full bg-zinc-300 bg-opacity-50">
+		<div class="flex max-h-80 w-full items-center justify-center gap-4 rounded-md lg:w-1/3">
+			<div class="relative h-32 w-60 bg-zinc-300 bg-opacity-50">
 				<router-link :to="`/video/${props.video.id}`" class="video-card">
 					<template v-if="thumbnailSrc === ''">
 						<div class="h-full w-full animate-pulse rounded-lg bg-gray-400"></div>
 					</template>
 					<template v-else>
-						<img :src="thumbnailSrc" alt="Description" class="absolute h-full w-full object-cover" />
+						<img
+							:src="thumbnailSrc"
+							alt="Description"
+							class="absolute h-full w-full object-cover hover:origin-bottom hover:-rotate-6 hover:transition-all"
+						/>
 					</template>
 				</router-link>
 			</div>
