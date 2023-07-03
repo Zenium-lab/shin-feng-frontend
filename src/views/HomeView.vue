@@ -3,7 +3,7 @@ import TitleSection from '@/components/TitleSection.vue';
 import StatusIndicator from '@/components/StatusIndicator.vue';
 import VideoCard from '@/components/VideoCard.vue';
 import { reactive, ref, computed, onMounted } from 'vue';
-import type { StatusInfo } from '@/types';
+import type { StatusInfo, Status } from '@/types';
 import * as API from '@/api';
 import { Video, IPCam } from '@/api';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
@@ -11,18 +11,35 @@ const statusList: StatusInfo[] = reactive([
 	{ icon: 'svgs/status/done.svg', statusName: '已完成', statusNumber: 0, color: 'bg-emerald-300' },
 	{ icon: 'svgs/status/in-progress.svg', statusName: '處理中', statusNumber: 0, color: 'bg-yellow-300' },
 	{ icon: 'svgs/status/canceled.svg', statusName: '已取消', statusNumber: 0, color: 'bg-gray-300' },
-	{ icon: 'svgs/status/error.svg', statusName: '失敗', statusNumber: 0, color: 'bg-red-300' },
+	{ icon: 'svgs/status/error.svg', statusName: '發生錯誤', statusNumber: 0, color: 'bg-red-300' },
 ]);
 
 const videoList = ref<Video[]>([]);
 const ipcamList = ref<IPCam[]>([]);
 const selectedIPCam = ref<IPCam>();
 const statusCounts = ref<Record<string, number>>({});
-
+// Update status
+const updateStatus = (videoId: number, status: Status) => {
+	const video = videoList.value.find((video) => video.id === videoId);
+	if (video) {
+		// 更新statusList
+		let statusInfo = statusList.find((statusInfo) => statusInfo.statusName === status);
+		if (statusInfo) {
+			statusInfo.statusNumber = statusInfo.statusNumber + 1;
+		}
+		statusInfo = statusList.find((statusInfo) => statusInfo.statusName === video.status);
+		if (statusInfo) {
+			statusInfo.statusNumber = statusInfo.statusNumber - 1;
+		}
+		video.status = status;
+		// 更新statusCounts
+		statusCounts.value[status] = statusCounts.value[status] + 1;
+	}
+};
 // Loading
 const isLoading = ref(false);
-
-// TODO: 取得所有IPcam
+//
+// 取得所有IPcam
 const getIPCamList = async (): Promise<IPCam[]> => {
 	try {
 		const res = await API.listIPCams();
@@ -210,6 +227,11 @@ const filteredVideoList = computed(() => {
 		/>
 	</div>
 	<div class="mt-6 flex flex-col justify-center gap-10">
-		<VideoCard v-for="video in filteredVideoList" :key="video.id" :video="video" />
+		<VideoCard
+			@update-video-status="(videoId, status) => updateStatus(videoId, status)"
+			v-for="video in filteredVideoList"
+			:key="video.id"
+			:video="video"
+		/>
 	</div>
 </template>

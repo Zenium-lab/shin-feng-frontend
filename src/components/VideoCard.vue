@@ -16,35 +16,34 @@
 
 		<!-- 主要內容 -->
 		<div class="flex w-full flex-col items-start justify-start py-2 lg:w-2/3">
-			<div class="flex w-full flex-col items-center justify-start md:flex-row lg:gap-10">
+			<div class="flex w-full flex-col items-center justify-center md:flex-row lg:gap-10">
 				<!-- 開始時間和結束時間 -->
-				<div class="flex w-3/4 items-center justify-start gap-5">
-					<div class="flex w-full flex-col items-center justify-center">
+				<div class="flex flex-col items-center justify-center gap-1">
+					<div class="flex w-full items-center justify-center">
 						<div class="flex items-center justify-center gap-2.5 rounded-lg bg-zinc-700 px-5 py-1">
 							<div class="text-md font-semibold text-white">開始時間</div>
 						</div>
-						<div class="flex w-full items-center justify-center gap-2.5 rounded-lg px-3 py-1">
+						<div class="flex items-center justify-center gap-2.5 rounded-lg px-3 py-1">
 							<div class="px-4 py-2 text-center text-base font-normal text-black">{{ timestampToTime(props.video.start_time) }}</div>
 						</div>
 					</div>
-					<div class="flex w-full flex-col items-center justify-center">
+					<div class="flex items-center justify-center">
 						<div class="flex items-center justify-center gap-2.5 rounded-lg bg-zinc-700 px-5 py-1">
 							<div class="text-md font-semibold text-white">結束時間</div>
 						</div>
-						<div class="flex w-full items-center justify-center gap-2.5 rounded-lg px-3 py-1">
+						<div class="flex items-center justify-center gap-2.5 rounded-lg px-3 py-1">
 							<div class="px-4 py-2 text-center text-base font-normal text-black">{{ timestampToTime(props.video.end_time) }}</div>
 						</div>
 					</div>
 				</div>
 				<!-- 建立者和處理狀態 -->
-				<div class="flex w-1/4 flex-col items-center justify-center gap-2 py-2">
-					<div class="flex w-full flex-col items-center justify-between gap-1">
+				<div class="flex flex-col items-center justify-center gap-4 py-2">
+					<div class="flex w-full items-center justify-center gap-3">
 						<div class="text-md rounded-lg bg-zinc-200 px-5 py-1 font-medium leading-tight text-black">建立者</div>
 						<div class="text-md font-medium leading-tight text-black">{{ props.video.creator_name }}</div>
 					</div>
-					<div class="flex w-full items-center justify-center gap-2.5">
-						<div class="text-md font-normal leading-tight text-black text-opacity-50">{{ props.video.status }}</div>
-					</div>
+					<div class="text-md font-normal text-black text-opacity-50">{{ timestampToTime(props.video.created_at) }}</div>
+					<div class="text-md font-normal text-black text-opacity-50">{{ props.video.status }}</div>
 				</div>
 			</div>
 			<!-- 下載進度 -->
@@ -68,6 +67,7 @@ import { onMounted, onUnmounted, reactive, ref } from 'vue';
 import * as API from '@/api';
 import type { Video, Progress } from '@/api';
 import { timestampToTime } from '@/utils/date';
+const emit = defineEmits(['updateVideoStatus']);
 const props = defineProps({
 	video: {
 		type: Object as () => Video,
@@ -112,6 +112,7 @@ if (props.video.status === '處理中') {
 				}
 				if (progressMessage.progress === 100) {
 					// TODO: emit event to update this video status
+					emit('updateVideoStatus', props.video.id, '已完成');
 					websocket.close();
 				}
 			} catch (err: unknown) {
