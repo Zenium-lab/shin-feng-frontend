@@ -60,7 +60,7 @@ const showModal = ref(false);
 		<template #content>
 			<form class="grid grid-cols-2 gap-6">
 				<div>
-					<label for="name" class="block font-medium text-gray-700">Name</label>
+					<label for="name" class="block font-medium text-gray-700">名稱</label>
 					<input
 						type="text"
 						id="name"
@@ -69,7 +69,7 @@ const showModal = ref(false);
 					/>
 				</div>
 				<div>
-					<label for="role" class="block font-medium text-gray-700">Role</label>
+					<label for="role" class="block font-medium text-gray-700">角色</label>
 					<select
 						id="role"
 						v-model="userForm.role"
@@ -79,7 +79,7 @@ const showModal = ref(false);
 					</select>
 				</div>
 				<div>
-					<label for="account" class="block font-medium text-gray-700">Account</label>
+					<label for="account" class="block font-medium text-gray-700">帳號</label>
 					<input
 						type="text"
 						id="account"
@@ -88,7 +88,7 @@ const showModal = ref(false);
 					/>
 				</div>
 				<div>
-					<label for="password" class="block font-medium text-gray-700">Password</label>
+					<label for="password" class="block font-medium text-gray-700">密碼</label>
 					<input
 						type="password"
 						id="password"
@@ -102,16 +102,16 @@ const showModal = ref(false);
 			<button
 				type="button"
 				@click="createUser"
-				class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
+				class="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto"
 			>
-				Create User
+				建立使用者
 			</button>
 			<button
 				type="button"
 				@click="showModal = false"
 				class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
 			>
-				Cancel
+				取消
 			</button>
 		</template>
 	</ConfirmModal>
