@@ -114,38 +114,20 @@ export const getSnapshotById = (snapshotId: number) => {
 	return API.get<Snapshot>(`/snapshots/${snapshotId}`);
 };
 
-// refs:
-// - https://stackoverflow.com/a/58339391
-// - https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
-async function encode(buf: ArrayBuffer): Promise<string> {
-	return new Promise((resolve) => {
-		const blob = new Blob([buf]);
-		const reader = new FileReader();
-
-		reader.addEventListener('load', () => {
-			resolve(reader.result as string);
-		});
-
-		reader.readAsDataURL(blob);
-	});
-}
-
 // 下載照片
 export const downloadSnapshotById = async (snapshotId: number) => {
-	return API.get<ArrayBuffer>(`/snapshots/download/${snapshotId}`, {
-		responseType: 'arraybuffer',
-	}).then((response) => {
-		return encode(response.data);
-	});
+	return API.get<File>(`/snapshots/download/${snapshotId}`, {
+		responseType: 'blob',
+	})
+		.then((response) => response.data)
+		.then((blob) => URL.createObjectURL(blob));
 };
 
 // 下載照片的縮圖
 export const downloadThumbnailById = async (snapshotId: number) => {
-	return API.get<ArrayBuffer>(`/snapshots/download/thumbnail/${snapshotId}`, {
-		responseType: 'arraybuffer',
-	}).then((response) => {
-		return encode(response.data);
-	});
+	return API.get<File>(`/snapshots/download/thumbnail/${snapshotId}`, {
+		responseType: 'blob',
+	}).then((response) => response.data);
 };
 
 // 取得特定一部影片

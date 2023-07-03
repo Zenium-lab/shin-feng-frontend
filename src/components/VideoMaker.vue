@@ -121,6 +121,7 @@ const makeVideo = () => {
 	const endTs = convertToTimestamp(endDate.value, endTime.value);
 	// alert(`Make Video\nstart: ${startTs}\nend ${endTs}\nframeRate: ${frameRate.value}\nframeRatio: ${frameRatio.value}`);
 	API.createVideo({
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		creator_id: authStore.userId!,
 		start_time: startTs,
 		end_time: endTs,
