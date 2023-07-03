@@ -111,7 +111,7 @@ const makeVideo = () => {
 function convertToTimestamp(date: string, time: string): number {
 	const dateTimeString = `${date}T${time}:00`;
 	const timestamp = Date.parse(dateTimeString);
-	return isNaN(timestamp) ? 0 : timestamp;
+	return isNaN(timestamp) ? 0 : timestamp / 1000;
 }
 // 選項列表
 const frameRates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
