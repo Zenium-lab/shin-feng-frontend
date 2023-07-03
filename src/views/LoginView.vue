@@ -1,19 +1,27 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
-
+import * as API from '@/api';
 const authStore = useAuthStore();
 const router = useRouter();
-
+const username = ref('');
+const password = ref('');
 // 登入處理邏輯
-const handleLogin = () => {
-	authStore.login();
-	if (authStore.isAuthenticated) {
-		alert('登入成功');
-		// 登入成功後導向首頁
+const handleLogin = async () => {
+	try {
+		// 向后端发送登录请求，获取 token 和用户信息
+		const response = await API.login({ account: username.value, password: password.value });
+		const { token, user } = response.data;
+		// 登录成功
+		authStore.login(token, user);
+		alert('登录成功');
+		// 登录成功后导向首页
 		router.push('/');
-	} else {
-		alert('登入失敗');
+	} catch (error) {
+		// 登录失败
+		alert('登录失败');
+		console.error(error);
 	}
 };
 </script>
@@ -22,7 +30,7 @@ const handleLogin = () => {
 	<div class="flex h-screen flex-col lg:flex-row">
 		<!-- 品牌照片 -->
 		<div class="flex w-1/2 items-center justify-center lg:block">
-			<div class="h-full w-full bg-[url('./images/bg.png')]" style="background-repeat: no-repeat; background-position: center center"></div>
+			<div class="h-full w-full bg-[url('./images/bg.png')]" style="background-position: center center; object-fit: cover"></div>
 		</div>
 
 		<!-- 登入框 -->

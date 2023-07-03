@@ -13,7 +13,7 @@ const selectedIPCam = ref<IPCam>();
 const getIPCamList = async (): Promise<IPCam[]> => {
 	try {
 		const res = await API.listIPCams();
-		return res;
+		return res.data;
 	} catch (error) {
 		console.error(error);
 		return [

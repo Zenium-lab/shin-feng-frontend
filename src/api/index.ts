@@ -1,30 +1,77 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import { useAuthStore } from '@/stores/auth';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const API = axios.create({
-    baseURL: 'http://localhost:8000/api/v1', // 請根據實際情況修改基礎 URL
+    baseURL: import.meta.env.VITE_BASE_URL + '/api/v1', // 請根據實際情況修改基礎 URL
     headers: {
         'Content-Type': 'application/json',
     },
 });
+// 攔截器加入 Auth token
+API.interceptors.request.use((config) => {
+    const authStore = useAuthStore()
+    const token = authStore.token;
+    if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+    }
 
+    return config;
+});
+
+// 添加响应拦截器
+API.interceptors.response.use(
+    (response: AxiosResponse) => {
+        return response;
+    },
+    (error) => {
+        // 处理响应错误
+        if (error.response) {
+            // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+            console.log('Response Error:', error.response.status);
+            console.log('Response Data:', error.response.data);
+            // 处理特定的错误状态码
+            if (error.response.status === 401) {
+                { router.push('/login'); }
+            } else if (error.request) {
+                // 请求已发出，但没有收到响应
+                console.log('No Response:', error.request);
+            } else {
+                // 发送请求时出错
+                console.log('Error:', error.message);
+            }
+            return Promise.reject(error);
+        }
+    }
+);
 // 登入
-export const login = (requestData: LoginRequest): Promise<LoginResponse> => {
-    return API.post('/login', requestData);
+export const login = (requestData: LoginRequest) => {
+    return API.post<LoginResponse>('/login', requestData);
 };
 
+
 // 取得使用者資料
-export const getUser = (id: number): Promise<User> => {
-    return API.get(`/users/${id}`);
+export const getUser = (id: number) => {
+    return API.get<User>(`/users/${id}`);
 };
 
 // 獲取用戶列表
-export const listUsers = (): Promise<UserMeta[]> => {
-    return API.get('/users');
+export const listUsers = () => {
+    return API.get<UserMeta[]>('/users');
+};
+// 新增使用者
+export const createUser = (userData: User) => {
+    return API.post('/users', userData);
 };
 
+// 刪除使用者
+export const deleteUser = (id: number) => {
+    return API.delete(`/users/${id}`);
+};
 // 獲取 IPCam 列表
-export const listIPCams = (): Promise<IPCam[]> => {
-    return API.get('/ipcams');
+export const listIPCams = () => {
+    return API.get<IPCam[]>('/ipcams');
 };
 
 // 創建 IPCam
@@ -70,49 +117,49 @@ export const createSnapshot = (
 };
 
 // 取得截圖的 metadata
-export const getSnapshotById = (snapshotId: number): Promise<Snapshot> => {
-    return API.get(`/snapshots/${snapshotId}`);
+export const getSnapshotById = (snapshotId: number) => {
+    return API.get<Snapshot>(`/snapshots/${snapshotId}`);
 };
 
 // 下載照片
-export const downloadSnapshotById = (snapshotId: number): Promise<File> => {
-    return API.get(`/snapshots/download/${snapshotId}`, {
+export const downloadSnapshotById = (snapshotId: number) => {
+    return API.get<File>(`/snapshots/download/${snapshotId}`, {
         responseType: 'blob',
     }).then(response => response.data);
 };
 
 // 下載照片的縮圖
-export const downloadThumbnailById = (snapshotId: number): Promise<File> => {
-    return API.get(`/snapshots/download/thumbnail/${snapshotId}`, {
+export const downloadThumbnailById = (snapshotId: number) => {
+    return API.get<File>(`/snapshots/download/thumbnail/${snapshotId}`, {
         responseType: 'blob',
     }).then(response => response.data);
 };
 
 // 取得特定一部影片
-export const getVideoById = (videoId: number): Promise<Video> => {
-    return API.get(`/videos/${videoId}`);
+export const getVideoById = (videoId: number) => {
+    return API.get<Video>(`/videos/${videoId}`);
 };
 
 // 下載影片
-export const downloadVideoById = (videoId: number): Promise<File> => {
-    return API.get(`/videos/download/${videoId}`, {
+export const downloadVideoById = (videoId: number) => {
+    return API.get<File>(`/videos/download/${videoId}`, {
         responseType: 'blob',
     }).then(response => response.data);
 };
 
 // 取得所有影片
-export const getAllVideos = (): Promise<Video[]> => {
-    return API.get('/videos');
+export const getAllVideos = () => {
+    return API.get<Video[]>('/videos');
 };
 
 // 請求建立影片
-export const createVideo = (videoInput: VideoInput): Promise<void> => {
-    return API.post('/videos', videoInput);
+export const createVideo = (videoInput: VideoInput) => {
+    return API.post<void>('/videos', videoInput);
 };
 
 // 取消製作中的影片
-export const cancelCreateVideo = (videoId: number): Promise<void> => {
-    return API.delete(`/videos/cancel/${videoId}`);
+export const cancelCreateVideo = (videoId: number) => {
+    return API.delete<void>(`/videos/cancel/${videoId}`);
 };
 
 // 建立 websocket 連線取得製作進度
@@ -136,7 +183,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-    token: number;
+    token: string;
     user: UserMeta;
 }
 
@@ -180,6 +227,7 @@ export interface UserMeta {
     name: string;
     role: '管理員' | '編輯者' | '檢視者';
     account: string;
+    password?: string;
 }
 
 export interface User extends UserMeta {

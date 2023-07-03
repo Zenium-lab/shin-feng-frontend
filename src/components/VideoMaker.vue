@@ -53,7 +53,7 @@
 						<div class="text-lg text-gray-500">影片製作耗時，您可以隨時離開此頁面，也可以製作多部影片，製作將會在背景進行。</div>
 						<div class="text-lg text-gray-500">
 							如需察看進度，請至
-							<router-link to="/video"
+							<router-link to="/"
 								><button class="rounded-md bg-gray-200 px-1 text-black hover:bg-gray-600 hover:text-white">#影片瀏覽</button></router-link
 							>
 							。
@@ -99,7 +99,7 @@ const makeVideo = () => {
 	const endTs = convertToTimestamp(endDate.value, endTime.value);
 	// alert(`Make Video\nstart: ${startTs}\nend ${endTs}\nframeRate: ${frameRate.value}\nframeRatio: ${frameRatio.value}`);
 	API.createVideo({
-		creator_id: authStore.userId,
+		creator_id: authStore.userId!,
 		start_time: startTs,
 		end_time: endTs,
 		fps: frameRate.value / frameRatio.value,

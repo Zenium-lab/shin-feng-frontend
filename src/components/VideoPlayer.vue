@@ -3,13 +3,14 @@
 		<div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
 			<div class="flex aspect-video items-center justify-center lg:col-span-2">
 				<!-- 影片播放 iframe -->
-				<iframe
-					class="h-full w-full rounded-lg"
-					src="https://www.youtube.com/embed/-aKwHCzINes"
-					frameborder="0"
-					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-					allowfullscreen
-				></iframe>
+				<template v-if="videoUrl">
+					<video ref="videoPlayer" class="h-full w-full rounded-lg" :src="videoUrl" controls></video>
+				</template>
+				<template v-else>
+					<!-- 顯示骨架屏或替代內容 -->
+					<div class="h-full w-full animate-pulse rounded-lg bg-gray-300"></div>
+					<!-- 或其他替代內容 -->
+				</template>
 			</div>
 			<div class="grid grid-cols-1 items-center justify-center gap-2 text-center sm:grid-cols-2">
 				<!-- 建立者 -->
@@ -29,35 +30,66 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import * as API from '@/api';
+
 const route = useRoute();
-const videoId = route.params.id;
+const videoId = route.params.id as string;
 // 將timestamp轉成日期格式
 const timestampToDate = (timestamp: string) => {
 	const date = new Date(parseInt(timestamp));
 	return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
 };
 // 取得該影片細節
-const getVideoDetail = () => {
+const getVideoDetail = async () => {
+	const res = await API.getVideoById(parseInt(videoId));
+	const video = res.data;
 	return {
-		creator: '新豐街主任',
-		creationTime: timestampToDate('1687199420000'),
-		startTime: timestampToDate('1687119420000'),
-		endTime: timestampToDate('1687910100000'),
+		creator: video.creator_name,
+		creationTime: timestampToDate(video.created_at.toString()),
+		startTime: timestampToDate(video.start_time.toString()),
+		endTime: timestampToDate(video.end_time.toString()),
 	};
+};
+// 下載影片
+const videoPlayer = ref(null);
+let videoUrl = ref<string>();
+
+const downloadVideoById = async (videoId: string) => {
+	try {
+		const video = await API.downloadVideoById(parseInt(videoId));
+		// 设置Video元素的src属性为Blob URL
+		videoUrl.value = URL.createObjectURL(video);
+		// 释放URL资源
+		URL.revokeObjectURL(videoUrl.value);
+	} catch (error) {
+		console.log(error);
+		return '';
+	}
 };
 const creator = ref();
 const creationTime = ref();
 const startTime = ref();
 const endTime = ref();
 
-onMounted(() => {
-	const videoDetail = getVideoDetail();
-	creator.value = videoDetail.creator;
-	creationTime.value = videoDetail.creationTime;
-	startTime.value = videoDetail.startTime;
-	endTime.value = videoDetail.endTime;
+onMounted(async () => {
+	try {
+		const videoDetail = await getVideoDetail();
+		creator.value = videoDetail.creator;
+		creationTime.value = videoDetail.creationTime;
+		startTime.value = videoDetail.startTime;
+		endTime.value = videoDetail.endTime;
+		videoUrl.value = await downloadVideoById(videoId);
+	} catch (error) {
+		console.error(error);
+	}
+});
+onUnmounted(() => {
+	// 停止播放并清除URL资源
+	if (videoUrl.value) {
+		URL.revokeObjectURL(videoUrl.value);
+	}
 });
 </script>
 <style>

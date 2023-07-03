@@ -26,7 +26,7 @@ const isLoading = ref(false);
 const getIPCamList = async (): Promise<IPCam[]> => {
 	try {
 		const res = await API.listIPCams();
-		return res;
+		return res.data;
 	} catch (error) {
 		console.error(error);
 		return [
@@ -49,7 +49,7 @@ const getIPCamList = async (): Promise<IPCam[]> => {
 const getVideoList = async (): Promise<Video[]> => {
 	try {
 		const res = await API.getAllVideos();
-		return res;
+		return res.data;
 	} catch (error) {
 		console.error(error);
 		return [
@@ -124,21 +124,25 @@ const getVideoList = async (): Promise<Video[]> => {
 
 onMounted(async () => {
 	isLoading.value = true;
-	ipcamList.value = await getIPCamList();
-	selectedIPCam.value = ipcamList.value[0];
-	videoList.value = await getVideoList();
+	try {
+		ipcamList.value = await getIPCamList();
+		selectedIPCam.value = ipcamList.value[0];
+		videoList.value = await getVideoList();
 
-	// 統計每個狀態的數量
-	statusCounts.value = videoList.value.reduce((counts, video) => {
-		const status = video.status;
-		counts[status] = (counts[status] || 0) + 1;
-		return counts;
-	}, {} as Record<string, number>);
+		// 統計每個狀態的數量
+		statusCounts.value = videoList.value.reduce((counts, video) => {
+			const status = video.status;
+			counts[status] = (counts[status] || 0) + 1;
+			return counts;
+		}, {} as Record<string, number>);
 
-	// 設定indicator
-	statusList.forEach((status) => {
-		status.statusNumber = statusCounts.value[status.statusName] || 0;
-	});
+		// 設定indicator
+		statusList.forEach((status) => {
+			status.statusNumber = statusCounts.value[status.statusName] || 0;
+		});
+	} catch (error) {
+		console.error(error);
+	}
 	isLoading.value = false;
 });
 // 選擇的狀態
