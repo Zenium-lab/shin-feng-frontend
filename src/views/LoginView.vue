@@ -9,6 +9,9 @@ const username = ref('');
 const password = ref('');
 // 登入處理邏輯
 const handleLogin = async () => {
+	if (!username.value || !password.value) {
+		return;
+	}
 	try {
 		const response = await API.login({ account: username.value, password: password.value });
 		const { token, user } = response.data;
@@ -30,7 +33,7 @@ const handleLogin = async () => {
 		</div>
 
 		<!-- 登入框 -->
-		<div class="flex w-full flex-col items-center justify-center p-8 lg:w-1/2 lg:p-16">
+		<div class="flex w-full flex-col items-center justify-center p-8 lg:w-1/2 lg:p-16" @keyup.enter="handleLogin">
 			<div class="mb-6 text-2xl font-semibold">單一入口登入</div>
 			<div class="mb-6 w-full max-w-sm">
 				<!-- Username 欄位 -->
