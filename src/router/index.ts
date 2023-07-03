@@ -28,10 +28,8 @@ const router = createRouter({
 })
 
 // 處理登入邏輯
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   const authStore = useAuthStore();
-
-  console.log('to', to, to.meta.requiresAuth, authStore.token);
   if (to.meta.requiresAuth && !authStore.token && to.path !== '/login' && import.meta.env.VITE_APP_MODE !== 'dev') {
     // 如果路由需要身份驗證且使用者未登入，導向登入頁面
     next('/login');
