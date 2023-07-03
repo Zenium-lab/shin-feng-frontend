@@ -59,41 +59,44 @@ const showModal = ref(false);
 		</template>
 		<template #content>
 			<form class="grid grid-cols-2 gap-6">
-				<div>
-					<label for="name" class="block font-medium text-gray-700">名稱</label>
+				<div class="">
+					<label for="name" class="mb-2 block text-sm font-medium text-gray-900">姓名</label>
 					<input
-						type="text"
-						id="name"
 						v-model="userForm.name"
-						class="rounded- mt-1 block w-full border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						type="name"
+						id="name"
+						class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						required
 					/>
 				</div>
 				<div>
-					<label for="role" class="block font-medium text-gray-700">角色</label>
+					<label for="role" class="mb-2 block text-sm font-medium text-gray-900">角色權限</label>
 					<select
-						id="role"
 						v-model="userForm.role"
-						class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+						id="role"
+						class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
 					>
 						<option v-for="(r, i) in roles" :key="i" :value="r">{{ r }}</option>
 					</select>
 				</div>
-				<div>
-					<label for="account" class="block font-medium text-gray-700">帳號</label>
+				<div class="">
+					<label for="account" class="mb-2 block text-sm font-medium text-gray-900">帳號</label>
 					<input
-						type="text"
-						id="account"
 						v-model="userForm.account"
-						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+						type="account"
+						id="account"
+						class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						required
 					/>
 				</div>
-				<div>
-					<label for="password" class="block font-medium text-gray-700">密碼</label>
+				<div class="">
+					<label for="password" class="mb-2 block text-sm font-medium text-gray-900">密碼</label>
 					<input
+						v-model="userForm.password"
 						type="password"
 						id="password"
-						v-model="userForm.password"
-						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+						class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						required
 					/>
 				</div>
 			</form>
@@ -102,7 +105,7 @@ const showModal = ref(false);
 			<button
 				type="button"
 				@click="createUser"
-				class="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto"
+				class="inline-flex w-full justify-center rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-800 sm:ml-3 sm:w-auto"
 			>
 				建立使用者
 			</button>

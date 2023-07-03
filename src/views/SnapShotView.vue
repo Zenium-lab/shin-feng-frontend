@@ -37,25 +37,32 @@
 		</div>
 	</div>
 	<!-- 圖片 -->
-	<div class="mx-auto mt-8 max-w-lg overflow-hidden rounded-lg bg-white shadow-lg">
-		<img v-if="snapshots.length > 0" class="h-80 w-full object-cover" :src="snapshots[0].path" alt="Image" />
-		<div v-else class="h-80 w-full animate-pulse bg-slate-200"></div>
-		<div class="p-4">
-			<h2 class="mb-2 text-xl font-semibold">{{ snapshots.length > 0 ? timestampToTime(snapshots[selectedIdx].created_at) : '尚無資料' }}</h2>
-			<p class="text-gray-500">{{ snapshots.length > 0 ? snapshots[selectedIdx].path : 'no data' }}</p>
+	<div class="mx-auto mt-8 max-w-3xl overflow-hidden rounded-lg bg-white shadow-lg">
+		<img v-if="snapshots.length > 0" class="h-96 w-full object-cover" :src="snapshots[selectedIdx - 1].path" alt="Image" />
+		<div v-else class="h-96 w-full animate-pulse bg-slate-200"></div>
+		<div class="flex items-center justify-between p-4">
+			<div class="flex flex-col">
+				<h2 class="mb-2 text-xl font-semibold">{{ snapshots.length > 0 ? timestampToTime(snapshots[selectedIdx - 1].created_at) : '尚無資料' }}</h2>
+				<p class="text-gray-500">{{ snapshots.length > 0 ? snapshots[selectedIdx - 1].ipcam_imei : 'no data' }}</p>
+			</div>
+			<button class="h-10 w-10 rounded-lg hover:bg-gray-200" @click="handleDownload">
+				<img src="svgs/download.svg" alt="Account" class="h-full w-full" />
+			</button>
 		</div>
 	</div>
+
 	<!-- 選擇開始日期、時間 -->
-	<label for="steps-range" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Range steps</label>
-	<input
-		v-model="selectedIdx"
-		id="steps-range"
-		type="range"
-		min="1"
-		:max="snapshots.length"
-		step="0.5"
-		class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700"
-	/>
+	<div class="mx-auto mt-4 max-w-3xl">
+		<input
+			v-model="selectedIdx"
+			id="steps-range"
+			type="range"
+			min="1"
+			:max="snapshots.length"
+			step="1"
+			class="h-4 w-full cursor-pointer rounded-sm"
+		/>
+	</div>
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
@@ -82,9 +89,26 @@ const handleDate = () => {
 	API.listSnapshotsInRange(selectedIPCam.value!.imei, start.getTime() / 1000, end.getTime() / 1000)
 		.then((res) => {
 			snapshots.value = res;
+
+			snapshots.value.forEach((snapshot) => {
+				API.downloadSnapshotById(snapshot.id)
+					.then((base64Img) => {
+						snapshot.path = base64Img;
+					})
+					.catch((err) => {
+						console.error(err);
+					});
+			});
 		})
 		.catch((err) => {
 			console.error(err);
 		});
 };
+const handleDownload = () => {
+	const a = document.createElement('a');
+	a.href = snapshots.value[selectedIdx.value - 1].path;
+	a.download = `${timestampToTime(snapshots.value[selectedIdx.value - 1].created_at)}.png`;
+	a.click();
+};
 </script>
+<style scoped></style>

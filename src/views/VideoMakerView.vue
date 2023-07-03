@@ -34,17 +34,13 @@ const getIPCamList = async (): Promise<IPCam[]> => {
 };
 onMounted(async () => {
 	try {
-		console.log('mounted 1');
 		isLoading.value = true;
 		ipcamList.value = await getIPCamList();
 		selectedIPCam.value = ipcamList.value[0];
 		isLoading.value = false;
-		console.log('mounted 2');
 	} catch (error) {
-		console.log('mounted 3');
 		isLoading.value = false;
 		console.error(error);
-		console.log('mounted 4');
 	}
 });
 </script>
