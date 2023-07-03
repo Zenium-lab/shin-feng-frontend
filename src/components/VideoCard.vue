@@ -56,9 +56,7 @@
 					<button class="col-span-1 mx-4 rounded-lg bg-yellow-400 px-3 py-1 text-xs font-normal text-black hover:bg-yellow-500">取消</button>
 				</div>
 				<div class="ml-4 flex w-1/4 items-center justify-center gap-4">
-					<div class="text-[1rem] font-normal leading-tight text-black">
-						{{ progress.progress }}% ({{ formatTime(progress.elapsed) }}/{{ formatTime(progress.remain) }}s)
-					</div>
+					<div class="text-[1rem] font-normal leading-tight text-black">{{ progress.progress }}% 剩餘{{ formatTime(progress.remain) }}</div>
 				</div>
 			</div>
 		</div>
