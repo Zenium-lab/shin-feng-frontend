@@ -10,17 +10,13 @@ const password = ref('');
 // 登入處理邏輯
 const handleLogin = async () => {
 	try {
-		// 向后端发送登录请求，获取 token 和用户信息
 		const response = await API.login({ account: username.value, password: password.value });
 		const { token, user } = response.data;
-		// 登录成功
 		authStore.login(token, user);
-		alert('登录成功');
-		// 登录成功后导向首页
 		router.push('/');
 	} catch (error) {
-		// 登录失败
-		alert('登录失败');
+		// TODO: 應該用一個浮起起來的東東顯示錯誤訊息
+		alert('登入失敗')
 		console.error(error);
 	}
 };
