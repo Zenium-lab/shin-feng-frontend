@@ -1,4 +1,4 @@
-export type Status = '已完成' | '處理中' | '已取消' | '發生錯誤';
+export type Status = '已完成' | '處理中' | '已取消' | '發生錯誤' | "系統排程";
 
 export interface StatusInfo {
     icon: string;

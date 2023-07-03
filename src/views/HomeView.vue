@@ -12,6 +12,7 @@ const statusList: StatusInfo[] = reactive([
 	{ icon: 'svgs/status/in-progress.svg', statusName: '處理中', statusNumber: 0, color: 'bg-yellow-300' },
 	{ icon: 'svgs/status/canceled.svg', statusName: '已取消', statusNumber: 0, color: 'bg-gray-300' },
 	{ icon: 'svgs/status/error.svg', statusName: '發生錯誤', statusNumber: 0, color: 'bg-red-300' },
+	{ icon: 'svgs/status/schedule.svg', statusName: '系統排程', statusNumber: 0, color: 'bg-blue-300' },
 ]);
 
 const videoList = ref<Video[]>([]);
@@ -69,73 +70,6 @@ const getVideoList = async (): Promise<Video[]> => {
 		return res.data;
 	} catch (error) {
 		console.error(error);
-		return [
-			{
-				start_time: 1405544146,
-				updated_at: 1405544146,
-				video_path: '',
-				creator_id: 5,
-				end_time: 1705544146,
-				fps: 30,
-				created_at: 1405544146,
-				creator_name: 'Larry',
-				id: 5,
-				status: '已完成',
-				first_snapshot_id: 1,
-			},
-			{
-				start_time: 1405544146,
-				updated_at: 1405544146,
-				video_path: '',
-				creator_id: 5,
-				end_time: 1705544146,
-				fps: 30,
-				created_at: 1405544146,
-				creator_name: 'Curry',
-				id: 5,
-				status: '發生錯誤',
-				first_snapshot_id: 1,
-			},
-			{
-				start_time: 1405544146,
-				updated_at: 1405544146,
-				video_path: '',
-				creator_id: 5,
-				end_time: 1705544146,
-				fps: 30,
-				created_at: 1405544146,
-				creator_name: 'jerry',
-				id: 5,
-				status: '已取消',
-				first_snapshot_id: 1,
-			},
-			{
-				start_time: 1405544146,
-				updated_at: 1405544146,
-				video_path: '',
-				creator_id: 5,
-				end_time: 1705544146,
-				fps: 30,
-				created_at: 1405544146,
-				creator_name: 'Sandy',
-				id: 5,
-				status: '處理中',
-				first_snapshot_id: 1,
-			},
-			{
-				start_time: 1405544146,
-				updated_at: 1405544146,
-				video_path: '',
-				creator_id: 5,
-				end_time: 1705544146,
-				fps: 30,
-				created_at: 1405544146,
-				creator_name: 'Carrots',
-				id: 5,
-				status: '處理中',
-				first_snapshot_id: 1,
-			},
-		];
 	}
 };
 

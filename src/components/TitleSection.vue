@@ -1,6 +1,6 @@
 <template>
 	<div class="h-auto w-full flex-col items-start justify-start gap-6">
-		<div class="text-2xl font-bold leading-10 text-black">{{ props.title }}</div>
+		<div class="mb-4 text-2xl font-bold leading-10 text-black underline underline-offset-8">{{ props.title }}</div>
 		<div class="text-base font-normal leading-normal text-black lg:text-lg">{{ props.subtitle }}</div>
 	</div>
 </template>
