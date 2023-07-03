@@ -65,7 +65,7 @@ const showModal = ref(false);
 						type="text"
 						id="name"
 						v-model="userForm.name"
-						class="rounded- mt-1 block w-full border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						class="mt-1 block h-8 w-full border-gray-300 pl-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 					/>
 				</div>
 				<div>
@@ -73,7 +73,7 @@ const showModal = ref(false);
 					<select
 						id="role"
 						v-model="userForm.role"
-						class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+						class="mt-1 block w-full border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
 					>
 						<option v-for="(r, i) in roles" :key="i" :value="r">{{ r }}</option>
 					</select>
@@ -84,7 +84,7 @@ const showModal = ref(false);
 						type="text"
 						id="account"
 						v-model="userForm.account"
-						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+						class="mt-1 block h-8 w-full border-gray-300 pl-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
 					/>
 				</div>
 				<div>
@@ -93,7 +93,7 @@ const showModal = ref(false);
 						type="password"
 						id="password"
 						v-model="userForm.password"
-						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+						class="mt-1 block h-8 w-full rounded-md border-gray-300 pl-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
 					/>
 				</div>
 			</form>
