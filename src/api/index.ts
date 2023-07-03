@@ -1,8 +1,8 @@
 import { useAuthStore } from '@/stores/auth';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
+const router = useRouter();
 const API = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL + '/api/v1', // 請根據實際情況修改基礎 URL
     headers: {
@@ -11,7 +11,7 @@ const API = axios.create({
 });
 // 攔截器加入 Auth token
 API.interceptors.request.use((config) => {
-    const authStore = useAuthStore()
+    const authStore = useAuthStore();
     const token = authStore.token;
     if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;
@@ -33,7 +33,9 @@ API.interceptors.response.use(
             console.log('Response Data:', error.response.data);
             // 处理特定的错误状态码
             if (error.response.status === 401) {
-                { router.push('/login'); }
+                {
+                    router.push('/login');
+                }
             } else if (error.request) {
                 // 请求已发出，但没有收到响应
                 console.log('No Response:', error.request);
@@ -49,7 +51,6 @@ API.interceptors.response.use(
 export const login = (requestData: LoginRequest) => {
     return API.post<LoginResponse>('/users/login', requestData);
 };
-
 
 // 取得使用者資料
 export const getUser = (id: number) => {
@@ -80,26 +81,18 @@ export const createIPCam = (ipcam: IPCam): Promise<void> => {
 };
 
 // 獲取指定時間段內的截圖列表
-export const listSnapshotsInRange = (
-    imei: number,
-    startTime: number,
-    endTime: number
-) => {
-    return API.get<Snapshot[]>('/snapshots', {
+export const listSnapshotsInRange = async (imei: number, startTime: number, endTime: number): Promise<Snapshot[]> => {
+    return API.get('/snapshots', {
         params: {
             imei,
             start_time: startTime,
             end_time: endTime,
         },
-    });
+    }).then((response) => response.data);
 };
 
 // 上傳一張照片
-export const createSnapshot = (
-    ipcamImei: string,
-    image: File,
-    createdAt?: number,
-): Promise<void> => {
+export const createSnapshot = (ipcamImei: string, image: File, createdAt?: number): Promise<void> => {
     const formData = new FormData();
     formData.append('ipcam_imei', ipcamImei);
     if (createdAt) {
@@ -121,18 +114,38 @@ export const getSnapshotById = (snapshotId: number) => {
     return API.get<Snapshot>(`/snapshots/${snapshotId}`);
 };
 
+// refs:
+// - https://stackoverflow.com/a/58339391
+// - https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
+async function encode(buf: ArrayBuffer): Promise<string> {
+    return new Promise((resolve) => {
+        const blob = new Blob([buf]);
+        const reader = new FileReader();
+
+        reader.addEventListener('load', () => {
+            resolve(reader.result as string);
+        });
+
+        reader.readAsDataURL(blob);
+    });
+}
+
 // 下載照片
-export const downloadSnapshotById = (snapshotId: number) => {
-    return API.get<File>(`/snapshots/download/${snapshotId}`, {
-        responseType: 'blob',
-    }).then(response => response.data);
+export const downloadSnapshotById = async (snapshotId: number) => {
+    return API.get<ArrayBuffer>(`/snapshots/download/${snapshotId}`, {
+        responseType: 'arraybuffer',
+    }).then((response) => {
+        return encode(response.data);
+    });
 };
 
 // 下載照片的縮圖
-export const downloadThumbnailById = (snapshotId: number) => {
-    return API.get<File>(`/snapshots/download/thumbnail/${snapshotId}`, {
-        responseType: 'blob',
-    }).then(response => response.data);
+export const downloadThumbnailById = async (snapshotId: number) => {
+    return API.get<ArrayBuffer>(`/snapshots/download/thumbnail/${snapshotId}`, {
+        responseType: 'arraybuffer',
+    }).then((response) => {
+        return encode(response.data);
+    });
 };
 
 // 取得特定一部影片
@@ -141,10 +154,10 @@ export const getVideoById = (videoId: number) => {
 };
 
 // 下載影片
-export const downloadVideoById = (videoId: number) => {
+export const downloadVideoById = async (videoId: number) => {
     return API.get<File>(`/videos/download/${videoId}`, {
         responseType: 'blob',
-    }).then(response => response.data);
+    }).then((response) => response.data);
 };
 
 // 取得所有影片

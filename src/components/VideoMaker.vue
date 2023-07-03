@@ -50,8 +50,8 @@
 					<!-- 製作進度提示 -->
 					<div v-if="downloading" class="flex w-full flex-col items-center justify-center gap-4">
 						<div class="rounded-lg bg-gray-600 px-2 py-1 text-lg text-gray-50">fps = 每秒播放張數/抽取張數比例</div>
-						<div class="text-lg text-gray-500">影片製作耗時，您可以隨時離開此頁面，也可以製作多部影片，製作將會在背景進行。</div>
-						<div class="text-lg text-gray-500">
+						<div class="text-justify text-lg text-gray-500">影片製作耗時，您可以隨時離開此頁面，製作將會在背景進行。</div>
+						<div class="text-justify text-lg text-gray-500">
 							如需察看進度，請至
 							<router-link to="/"
 								><button class="rounded-md bg-gray-200 px-1 text-black hover:bg-gray-600 hover:text-white">#影片瀏覽</button></router-link
@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import * as API from '@/api';
 import { timeToTimestamp } from '@/utils/date';
 import type { IPCam } from '@/api';
@@ -93,6 +93,28 @@ const endDate = ref('');
 const endTime = ref('');
 const frameRate = ref(5);
 const frameRatio = ref(1);
+
+// 觀察選擇的開始日期，若有改變則載入圖片
+watch([startDate, startTime, endDate, endTime], () => {
+	if (startDate.value && startTime.value && endDate.value && endTime.value) {
+		const startTs = convertToTimestamp(startDate.value, startTime.value);
+		const endTs = convertToTimestamp(endDate.value, endTime.value);
+		API.listSnapshotsInRange(props.selectedIPCam.imei, startTs, endTs)
+			.then((res) => {
+				API.downloadSnapshotById(res[0].id)
+					.then((base64Img) => {
+						thumbnailSrc.value = base64Img;
+						imageLoading.value = false;
+					})
+					.catch((err) => {
+						console.error(err);
+					});
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+	}
+});
 
 // TODO: 開始製作影片
 const makeVideo = () => {
