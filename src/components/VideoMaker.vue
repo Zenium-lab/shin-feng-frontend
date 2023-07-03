@@ -97,8 +97,8 @@ const frameRatio = ref(1);
 // 觀察選擇的開始日期，若有改變則載入圖片
 watch([startDate, startTime, endDate, endTime], () => {
 	if (startDate.value && startTime.value && endDate.value && endTime.value) {
-		const startTs = convertToTimestamp(startDate.value, startTime.value);
-		const endTs = convertToTimestamp(endDate.value, endTime.value);
+		const startTs = timeToTimestamp(startDate.value, startTime.value);
+		const endTs = timeToTimestamp(endDate.value, endTime.value);
 		API.listSnapshotsInRange(props.selectedIPCam.imei, startTs, endTs)
 			.then((res) => {
 				API.downloadSnapshotById(res[0].id)
