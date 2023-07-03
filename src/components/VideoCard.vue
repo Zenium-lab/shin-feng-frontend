@@ -57,7 +57,7 @@
 				</div>
 				<div class="ml-4 flex w-1/4 items-center justify-center gap-4">
 					<div class="text-[1rem] font-normal leading-tight text-black">
-						{{ progress.progress }}% ({{ progress.elapsed }}s/{{ progress.remain }}s)
+						{{ progress.progress }}% ({{ formatTime(progress.elapsed) }}/{{ formatTime(progress.remain) }}s)
 					</div>
 				</div>
 			</div>
@@ -82,6 +82,18 @@ const progress: Progress = reactive({
 	remain: 0,
 	videoId: props.video.id,
 });
+
+const formatTime = (seconds: number): string => {
+	const hours = Math.floor(seconds / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	const remainingSeconds = seconds % 60;
+
+	const formattedHours = hours.toString().padStart(2, '0');
+	const formattedMinutes = minutes.toString().padStart(2, '0');
+	const formattedSeconds = remainingSeconds.toString().padStart(2, '0');
+
+	return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+};
 
 // 如果現在狀態是處理中，定期使用websocket拿progress
 let websocket: WebSocket;
