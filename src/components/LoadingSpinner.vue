@@ -15,7 +15,7 @@
 	z-index: 9999;
 	justify-content: center;
 	align-items: center;
-	background-color: rgba(0, 0, 0, 0.5); /* 添加半透明的背景顏色 */
+	background-color: rgba(0, 0, 0, 0); /* 添加半透明的背景顏色 */
 }
 
 .loading-logo {

@@ -223,7 +223,7 @@ export interface Video {
 }
 
 export interface UserMeta {
-    id: number;
+    id?: number;
     name: string;
     role: '管理員' | '編輯者' | '檢視者';
     account: string;

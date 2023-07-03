@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import * as API from '@/api';
+
 const authStore = useAuthStore();
 const router = useRouter();
 const username = ref('');

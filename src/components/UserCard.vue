@@ -17,24 +17,11 @@
 						{{ user.name }}
 					</td>
 					<td class="px-6 py-4">
-						<div
-							v-if="user.role === '管理員'"
-							class="m-1 flex items-center justify-center rounded-full border border-red-500 bg-red-500 bg-white px-2 py-1 font-medium text-red-100"
-						>
-							<div class="max-w-full flex-initial text-xs font-normal leading-none">管理員</div>
+						<div v-if="user.role === '管理員'" class="rounded bg-red-100 py-0.5 text-sm font-medium text-red-800">管理員</div>
+						<div v-else-if="user.role === '編輯者'" class="rounded bg-blue-100 py-0.5 text-sm font-medium text-blue-800">
+							{{ user.role }}
 						</div>
-						<div
-							v-else-if="user.role === '編輯者'"
-							class="m-1 flex items-center justify-center rounded-full border border-green-500 bg-green-500 bg-white px-2 py-1 font-medium text-green-100"
-						>
-							<div class="max-w-full flex-initial text-xs font-normal leading-none">{{ user.role }}</div>
-						</div>
-						<div
-							v-else-if="user.role === '檢視者'"
-							class="m-1 flex items-center justify-center rounded-full border border-blue-500 bg-blue-500 bg-white px-2 py-1 font-medium text-blue-100"
-						>
-							<div class="max-w-full flex-initial text-xs font-normal leading-none">檢視者</div>
-						</div>
+						<div v-else-if="user.role === '檢視者'" class="rounded bg-green-100 py-0.5 text-sm font-medium text-green-800">檢視者</div>
 					</td>
 					<td class="px-6 py-4">
 						{{ user.account }}
