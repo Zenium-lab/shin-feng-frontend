@@ -37,9 +37,16 @@ import * as API from '@/api';
 const route = useRoute();
 const videoId = route.params.id as string;
 // 將timestamp轉成日期格式
-const timestampToDate = (timestamp: string) => {
-	const date = new Date(parseInt(timestamp));
-	return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+const timestampToTime = (timestamp: number) => {
+	const date = new Date(timestamp*1000);
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	const hours = String(date.getHours()).padStart(2, '0');
+	const minutes = String(date.getMinutes()).padStart(2, '0');
+	const seconds = String(date.getSeconds()).padStart(2, '0');
+
+	return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 // 取得該影片細節
 const getVideoDetail = async () => {
@@ -47,9 +54,9 @@ const getVideoDetail = async () => {
 	const video = res.data;
 	return {
 		creator: video.creator_name,
-		creationTime: timestampToDate(video.created_at.toString()),
-		startTime: timestampToDate(video.start_time.toString()),
-		endTime: timestampToDate(video.end_time.toString()),
+		creationTime: timestampToTime(video.created_at),
+		startTime: timestampToTime(video.start_time),
+		endTime: timestampToTime(video.end_time),
 	};
 };
 // 下載影片
