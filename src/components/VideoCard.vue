@@ -128,16 +128,16 @@ const getThumbnailById = async (snapshotId: number): Promise<string> => {
 	}
 };
 
-// 將timestamp轉成時間格式
 const timestampToTime = (timestamp: number) => {
 	const date = new Date(timestamp * 1000);
-	const Y = date.getFullYear() + '-';
-	const M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-	const D = date.getDate() + ' ';
-	const h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
-	const m = date.getMinutes() + ':';
-	const s = date.getSeconds();
-	return Y + M + D + h + m + s;
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	const hours = String(date.getHours()).padStart(2, '0');
+	const minutes = String(date.getMinutes()).padStart(2, '0');
+	const seconds = String(date.getSeconds()).padStart(2, '0');
+
+	return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 </script>
 
