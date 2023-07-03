@@ -81,7 +81,7 @@ const handleDate = () => {
 
 	API.listSnapshotsInRange(selectedIPCam.value!.imei, start.getTime() / 1000, end.getTime() / 1000)
 		.then((res) => {
-			snapshots.value = res.data;
+			snapshots.value = res;
 		})
 		.catch((err) => {
 			console.error(err);
