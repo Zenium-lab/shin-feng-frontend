@@ -56,9 +56,7 @@
 					<button class="col-span-1 mx-4 rounded-lg bg-yellow-400 px-3 py-1 text-xs font-normal text-black hover:bg-yellow-500">取消</button>
 				</div>
 				<div class="ml-4 flex w-1/4 items-center justify-center gap-4">
-					<div class="text-[1rem] font-normal leading-tight text-black">
-						{{ progress.progress }}% ({{ progress.elapsed }}s/{{ progress.remain }}s)
-					</div>
+					<div class="text-[1rem] font-normal leading-tight text-black">{{ progress.progress }}% 剩餘{{ formatTime(progress.remain) }}</div>
 				</div>
 			</div>
 		</div>
@@ -83,6 +81,18 @@ const progress: Progress = reactive({
 	videoId: props.video.id,
 });
 
+const formatTime = (seconds: number): string => {
+	const hours = Math.floor(seconds / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	const remainingSeconds = seconds % 60;
+
+	const formattedHours = hours.toString().padStart(2, '0');
+	const formattedMinutes = minutes.toString().padStart(2, '0');
+	const formattedSeconds = remainingSeconds.toString().padStart(2, '0');
+
+	return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+};
+
 // 如果現在狀態是處理中，定期使用websocket拿progress
 let websocket: WebSocket;
 if (props.video.status === '處理中') {
@@ -99,6 +109,10 @@ if (props.video.status === '處理中') {
 					progress.progress = progressMessage.progress;
 					progress.elapsed = progressMessage.elapsed;
 					progress.remain = progressMessage.remain;
+				}
+				if (progressMessage.progress === 100) {
+					// TODO: emit event to update this video status
+					websocket.close();
 				}
 			} catch (err: unknown) {
 				console.error('websocket message parse error', err);
