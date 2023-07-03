@@ -70,6 +70,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import * as API from '@/api';
+import { timeToTimestamp } from '@/utils/date';
 import type { IPCam } from '@/api';
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
@@ -95,8 +96,8 @@ const frameRatio = ref(1);
 
 // TODO: 開始製作影片
 const makeVideo = () => {
-	const startTs = convertToTimestamp(startDate.value, startTime.value);
-	const endTs = convertToTimestamp(endDate.value, endTime.value);
+	const startTs = timeToTimestamp(startDate.value, startTime.value);
+	const endTs = timeToTimestamp(endDate.value, endTime.value);
 	// alert(`Make Video\nstart: ${startTs}\nend ${endTs}\nframeRate: ${frameRate.value}\nframeRatio: ${frameRatio.value}`);
 	API.createVideo({
 		creator_id: authStore.userId!,
@@ -107,12 +108,6 @@ const makeVideo = () => {
 	});
 };
 
-// 轉換日期和時間為時間戳記
-function convertToTimestamp(date: string, time: string): number {
-	const dateTimeString = `${date}T${time}:00`;
-	const timestamp = Date.parse(dateTimeString);
-	return isNaN(timestamp) ? 0 : timestamp / 1000;
-}
 // 選項列表
 const frameRates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 const frameRatios = [1, 2, 4, 8, 16, 32];

@@ -84,8 +84,8 @@ export const listSnapshotsInRange = (
     imei: number,
     startTime: number,
     endTime: number
-): Promise<Snapshot[]> => {
-    return API.get('/snapshots', {
+) => {
+    return API.get<Snapshot[]>('/snapshots', {
         params: {
             imei,
             start_time: startTime,
