@@ -2,7 +2,7 @@
 	<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 		<table class="text-md w-full text-left text-gray-800">
 			<thead class="bg-gray-50 text-lg uppercase text-gray-700">
-				<tr>
+				<tr class="text-center">
 					<th scope="col" class="px-6 py-3">姓名</th>
 					<th scope="col" class="px-6 py-3">角色</th>
 					<th scope="col" class="px-6 py-3">帳號</th>
@@ -12,31 +12,35 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr class="border-b bg-white hover:bg-gray-50" v-for="(user, index) in props.users" :key="index">
+				<tr class="border-b bg-white text-center hover:bg-gray-50" v-for="(user, index) in props.users" :key="index">
 					<td class="px-6 py-4">
-						<input
-							type="text"
-							v-model="user.name"
-							class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-						/>
+						{{ user.name }}
+					</td>
+					<td class="px-6 py-4">
+						<div
+							v-if="user.role === '管理員'"
+							class="m-1 flex items-center justify-center rounded-full border border-red-500 bg-red-500 bg-white px-2 py-1 font-medium text-red-100"
+						>
+							<div class="max-w-full flex-initial text-xs font-normal leading-none">管理員</div>
+						</div>
+						<div
+							v-else-if="user.role === '編輯者'"
+							class="m-1 flex items-center justify-center rounded-full border border-green-500 bg-green-500 bg-white px-2 py-1 font-medium text-green-100"
+						>
+							<div class="max-w-full flex-initial text-xs font-normal leading-none">{{ user.role }}</div>
+						</div>
+						<div
+							v-else-if="user.role === '檢視者'"
+							class="m-1 flex items-center justify-center rounded-full border border-blue-500 bg-blue-500 bg-white px-2 py-1 font-medium text-blue-100"
+						>
+							<div class="max-w-full flex-initial text-xs font-normal leading-none">檢視者</div>
+						</div>
+					</td>
+					<td class="px-6 py-4">
+						{{ user.account }}
 					</td>
 
-					<td class="px-6 py-4">
-						<select v-model="user.role" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-							<option value="編輯者">編輯者</option>
-							<option value="管理員">管理員</option>
-							<option value="檢視者">檢視者</option>
-						</select>
-					</td>
-					<td class="px-6 py-4">
-						<input
-							type="account"
-							v-model="user.account"
-							class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-						/>
-					</td>
-
-					<td class="px-6 py-4 text-right">
+					<td class="px-6 py-4 text-center">
 						<a href="#" class="font-medium text-red-600 hover:underline" @click="handleDelete(user.id)">刪除</a>
 					</td>
 				</tr>

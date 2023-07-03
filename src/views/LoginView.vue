@@ -16,7 +16,7 @@ const handleLogin = async () => {
 		router.push('/');
 	} catch (error) {
 		// TODO: 應該用一個浮起起來的東東顯示錯誤訊息
-		alert('登入失敗')
+		alert('登入失敗');
 		console.error(error);
 	}
 };
@@ -51,12 +51,12 @@ const handleLogin = async () => {
 			<!-- 登入按鈕 -->
 			<button class="mb-4 rounded-lg bg-black px-6 py-2 text-xl font-normal text-white" @click="handleLogin">登入</button>
 			<!-- 忘記密碼連結 -->
-			<a href="#" class="text-lg font-normal text-zinc-500">忘記密碼</a>
+			<!-- <a href="#" class="text-lg font-normal text-zinc-500">忘記密碼</a> -->
 			<!-- 公司聯絡資訊 -->
 			<div class="mt-8 text-sm text-gray-500">
-				公司名稱: ABC 公司<br />
-				電話: 123-456-7890<br />
-				Email: info@abc.com
+				<div>公司名稱: 台灣新光保全股份有限公司</div>
+				<div>客服中心: 0800-668-850</div>
+				<div>聯絡信箱: service@sks.com.tw</div>
 			</div>
 		</div>
 	</div>
