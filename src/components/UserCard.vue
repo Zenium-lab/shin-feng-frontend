@@ -28,7 +28,7 @@
 					</td>
 
 					<td class="px-6 py-4 text-center">
-						<a href="#" class="font-medium text-red-600 hover:underline" @click="handleDelete(user.id)">刪除</a>
+						<a href="#" class="font-medium text-red-600 hover:underline" @click="handleDelete(user.id!)">刪除</a>
 					</td>
 				</tr>
 			</tbody>
