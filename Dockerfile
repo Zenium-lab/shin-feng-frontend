@@ -1,8 +1,9 @@
-FROM node:lts-alpine as build-stage
+FROM node:18-alpine as build-stage
 RUN mkdir -p /app
 WORKDIR /app
-COPY package*.json ./
-RUN yarn && yarn build
+COPY . .
+RUN yarn
+RUN yarn build
 
 FROM nginx:stable-alpine as production-stage
 COPY nginx.conf /etc/nginx/conf.d/default.conf
