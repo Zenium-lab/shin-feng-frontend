@@ -30,7 +30,7 @@ const handleLogin = async () => {
 	<div class="flex h-screen flex-col lg:flex-row">
 		<!-- 品牌照片 -->
 		<div class="flex w-1/2 items-center justify-center lg:block">
-			<div class="h-full w-full bg-[url('images/bg.png')]" style="background-position: center center; object-fit: cover"></div>
+			<div class="h-full w-full bg-[url('/images/bg.png')]" style="background-position: center center; object-fit: cover"></div>
 		</div>
 
 		<!-- 登入框 -->
