@@ -37,12 +37,14 @@ const handleLogout = () => {
 				</div>
 			</RouterLink>
 			<!-- Navbar 導航連結 -->
-			<div class="flex items-center gap-8">
+			<div class="flex items-center gap-5">
 				<RouterLink to="/"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">影片瀏覽</div></RouterLink>
 				<div class="h-1 w-1 rounded-full bg-black"></div>
 				<RouterLink to="/video"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">影片剪輯</div></RouterLink>
 				<div class="h-1 w-1 rounded-full bg-black"></div>
 				<RouterLink to="/user"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">權限管理</div></RouterLink>
+				<div class="h-1 w-1 rounded-full bg-black"></div>
+				<RouterLink to="/snapshots"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">畫面觀看</div></RouterLink>
 				<div class="h-1 w-1 rounded-full bg-black"></div>
 				<RouterLink to="/"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">自動儲存</div></RouterLink>
 
