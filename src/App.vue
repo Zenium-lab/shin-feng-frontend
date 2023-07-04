@@ -46,7 +46,9 @@ const handleLogout = () => {
 				<div class="h-1 w-1 rounded-full bg-black"></div>
 				<RouterLink to="/snapshots"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">畫面觀看</div></RouterLink>
 				<div class="h-1 w-1 rounded-full bg-black"></div>
-				<RouterLink to="/"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">自動儲存</div></RouterLink>
+				<RouterLink to="/video/scheduler"
+					><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">自動儲存</div></RouterLink
+				>
 
 				<!-- Navbar 登出按鈕 -->
 				<button class="rounded-lg px-2 py-1 text-sm font-normal text-black text-gray-500 hover:bg-gray-300" @click="handleLogout">登出</button>

@@ -3,7 +3,7 @@
 	<div class="grid grid-cols-1 items-center gap-4 lg:grid-cols-3">
 		<!-- 標題 -->
 		<div class="col-span-1">
-			<TitleSection title="影片製作" subtitle="選擇時間，製作影片" />
+			<TitleSection title="畫面觀看" subtitle="選擇日期，觀看影片" />
 		</div>
 		<!-- 日期 -->
 		<div class="col-span-1 w-full items-center gap-4">

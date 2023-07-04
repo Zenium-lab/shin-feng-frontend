@@ -64,7 +64,7 @@ const getIPCamList = async (): Promise<IPCam[]> => {
 	}
 };
 // TODO: 取得所有影片資訊
-const getVideoList = async (): Promise<Video[]> => {
+const getVideoList = async () => {
 	try {
 		const res = await API.getAllVideos();
 		return res.data;

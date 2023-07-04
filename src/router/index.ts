@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/HomeView.vue';
 import Video from '../views/VideoView.vue';
 import Login from '../views/LoginView.vue';
+import VideoSchedulerView from '../views/VideoSchedulerView.vue';
 import VideoMaker from '../views/VideoMakerView.vue';
 import Role from '../views/RoleView.vue';
 import SnapShot from '../views/SnapShotView.vue';
@@ -24,6 +25,7 @@ const router = createRouter({
     },
     { path: '/video/:id', component: Video, meta: { requiresAuth: true } },
     { path: '/video', component: VideoMaker, meta: { requiresAuth: true } },
+    { path: '/video/scheduler', component: VideoSchedulerView, meta: { requiresAuth: true } },
     { path: '/user', component: Role, meta: { requiresAuth: true } },
     { path: '/snapshots', component: SnapShot, meta: { requiresAuth: true } },
   ]
