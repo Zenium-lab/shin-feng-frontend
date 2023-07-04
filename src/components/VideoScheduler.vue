@@ -51,22 +51,6 @@
 						</select>
 					</div>
 				</form>
-				<div class="col-span-1 flex flex-col justify-end gap-6">
-					<!-- 製作進度提示 -->
-					<div v-if="downloading" class="flex w-full flex-col items-center justify-center gap-4">
-						<div class="rounded-lg bg-gray-600 px-2 py-1 text-lg text-gray-50">fps = 每秒播放張數/抽取張數比例</div>
-						<div class="text-justify text-lg text-gray-500">影片製作耗時，您可以隨時離開此頁面，製作將會在背景進行。</div>
-						<div class="text-justify text-lg text-gray-500">
-							如需察看進度，請至
-							<router-link to="/"
-								><button class="rounded-md bg-gray-200 px-1 text-black hover:bg-gray-600 hover:text-white">#影片瀏覽</button></router-link
-							>
-							。
-						</div>
-					</div>
-					<!-- 製作影片按鈕 -->
-					<button class="rounded-lg bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-800" @click="makeVideo">製作影片</button>
-				</div>
 			</div>
 		</div>
 	</div>
@@ -78,7 +62,6 @@ import { ref } from 'vue';
 // 影片資訊
 const thumbnailSrc = ref('縮圖路徑');
 const imageLoading = ref(true);
-const downloading = ref(true);
 
 // 表單資料
 const activate = ref('啟用');
@@ -86,11 +69,6 @@ const schedulePeriod = ref('1周');
 const scheduleTiming = ref('星期一');
 const frameRate = ref(5);
 const frameRatio = ref(1);
-
-// TODO: 開始製作影片
-const makeVideo = () => {
-	console.log('未實作');
-};
 
 // 選項列表
 const activates = ['啟用', '停用'];
