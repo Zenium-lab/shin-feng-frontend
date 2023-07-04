@@ -25,7 +25,7 @@ const router = createRouter({
     },
     { path: '/video/:id', component: Video, meta: { requiresAuth: true } },
     { path: '/video', component: VideoMaker, meta: { requiresAuth: true } },
-    { path: '/video/scheduler', component: VideoSchedulerView, meta: { requiresAuth: true } },
+    { path: '/scheduler', component: VideoSchedulerView, meta: { requiresAuth: true } },
     { path: '/user', component: Role, meta: { requiresAuth: true } },
     { path: '/snapshots', component: SnapShot, meta: { requiresAuth: true } },
   ]

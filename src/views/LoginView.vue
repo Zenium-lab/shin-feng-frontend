@@ -3,7 +3,8 @@ import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import * as API from '@/api';
-
+import { useMessage } from 'naive-ui';
+const message = useMessage();
 const authStore = useAuthStore();
 const router = useRouter();
 const username = ref('');
@@ -17,10 +18,11 @@ const handleLogin = async () => {
 		const response = await API.login({ account: username.value, password: password.value });
 		const { token, user } = response.data;
 		authStore.login(token, user);
+		message.success('登入成功');
 		router.push('/');
 	} catch (error) {
 		// TODO: 應該用一個浮起起來的東東顯示錯誤訊息
-		alert('登入失敗');
+		message.error('登入失敗');
 		console.error(error);
 	}
 };
