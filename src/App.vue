@@ -34,7 +34,7 @@ const hasUserEditPermission = (): boolean => {
 };
 
 const hasAutoSavePermission = (): boolean => {
-	return authStore.userRole === '管理員';
+	return authStore.userRole === '管理員' || authStore.userRole === '編輯者';
 };
 </script>
 
