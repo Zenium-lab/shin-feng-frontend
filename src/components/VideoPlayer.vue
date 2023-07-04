@@ -19,7 +19,7 @@
 			<div class="grid grid-cols-1 items-center justify-center gap-2 text-center sm:grid-cols-2">
 				<!-- 建立者 -->
 				<div class="mx-5 rounded-md bg-gray-200 py-1 font-medium text-gray-800">建立者</div>
-				<div class="font-medium text-black">{{ creator + videoId }}</div>
+				<div class="font-medium text-black">{{ creator }}</div>
 				<!-- 建立時間 -->
 				<div class="mx-5 rounded-md bg-gray-200 py-1 font-medium text-gray-800">建立時間</div>
 				<div class="font-medium text-black">{{ creationTime }}</div>
