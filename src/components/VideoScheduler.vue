@@ -73,18 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import * as API from '@/api';
-import { timeToTimestamp } from '@/utils/date';
-import type { IPCam } from '@/api';
-import { useAuthStore } from '@/stores/auth';
-const authStore = useAuthStore();
-const props = defineProps({
-	selectedIPCam: {
-		type: Object as () => IPCam,
-		required: true,
-	},
-});
+import { ref } from 'vue';
 
 // 影片資訊
 const thumbnailSrc = ref('縮圖路徑');
