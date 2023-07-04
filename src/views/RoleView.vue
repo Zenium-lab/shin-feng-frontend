@@ -5,7 +5,8 @@ import { onMounted, ref, reactive } from 'vue';
 import * as API from '@/api';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import type { User } from '@/api';
-
+import { useMessage } from 'naive-ui';
+const message = useMessage();
 const users = ref<API.UserMeta[]>([]);
 const roles = ['檢視者', '編輯者', '管理員'];
 onMounted(() => {
@@ -27,9 +28,10 @@ const createUser = () => {
 				role: userForm.role,
 				account: userForm.account,
 			});
+			message.success('新增成功');
 		})
 		.catch((error) => {
-			alert('新增失敗');
+			message.error('新增失敗');
 			console.error(error);
 		});
 };
@@ -38,9 +40,10 @@ const deleteUser = (userId: number) => {
 		.then(() => {
 			console.log('delete success');
 			users.value = users.value.filter((user) => user.id !== userId);
+			message.success('刪除成功');
 		})
 		.catch((error) => {
-			alert('刪除失敗');
+			message.error('刪除失敗');
 			console.error(error);
 		});
 };

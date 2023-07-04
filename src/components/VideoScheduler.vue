@@ -12,47 +12,45 @@
 				</template>
 			</div>
 			<!-- 右半區域 -->
-			<div class="col-span-2 grid grid-cols-1 justify-around gap-4 lg:grid-cols-3">
-				<!-- 表單 -->
-				<form class="col-span-2 flex w-full flex-col gap-4">
-					<!-- 選擇啟用與否 -->
-					<div class="flex items-center gap-4">
-						<label for="activate" class="w-1/3 text-center text-lg font-medium text-gray-500">是否啟用</label>
-						<select id="activate" class="form-select" v-model="activate">
-							<option v-for="activate in activates" :key="activate" :value="activate">{{ activate }}</option>
-						</select>
-					</div>
-					<!-- 選擇照片天 -->
-					<div class="flex items-center gap-4">
-						<label for="schedulePeriod" class="w-1/3 text-center text-lg font-medium text-gray-500">照片天數</label>
-						<select id="schedulePeriod" class="form-select" v-model="schedulePeriod">
-							<option v-for="schedulePeriod in schedulePeriods" :key="schedulePeriod" :value="schedulePeriod">{{ schedulePeriod }}</option>
-						</select>
-					</div>
-					<!-- 選擇儲存時間-->
-					<div class="flex items-center gap-4">
-						<label for="scheduleTiming" class="w-1/3 text-center text-lg font-medium text-gray-500">儲存時間點</label>
-						<select id="scheduleTiming" class="form-select" v-model="scheduleTiming">
-							<option v-for="scheduleTiming in scheduleTimings" :key="scheduleTiming" :value="scheduleTiming">{{ scheduleTiming }}</option>
-						</select>
-					</div>
-					<!-- 選擇每秒播放張數 -->
-					<div class="flex items-center gap-4">
-						<label for="frameRate" class="w-1/3 text-center text-lg font-medium text-gray-500">每秒播放張數</label>
-						<select id="frameRate" class="form-select" v-model="frameRate">
-							<option v-for="rate in frameRates" :key="rate" :value="rate">{{ rate }}</option>
-						</select>
-					</div>
-					<!-- 選擇抽取張數比例 -->
-					<div class="flex items-center gap-4">
-						<label for="frameRatio" class="w-1/3 text-center text-lg font-medium text-gray-500">抽取張數比例</label>
-						<select id="frameRatio" class="form-select" v-model="frameRatio">
-							<option v-for="ratio in frameRatios" :key="ratio" :value="ratio">{{ ratio }}</option>
-						</select>
-					</div>
-				</form>
-			</div>
 		</div>
+		<!-- 表單 -->
+		<form class="mt-10 grid w-full grid-cols-2 flex-col gap-4">
+			<!-- 選擇啟用與否 -->
+			<div class="flex items-center gap-4">
+				<label for="activate" class="w-1/3 text-center text-lg font-medium text-gray-500">是否啟用</label>
+				<select id="activate" class="form-select" v-model="activate">
+					<option v-for="activate in activates" :key="activate" :value="activate">{{ activate }}</option>
+				</select>
+			</div>
+			<!-- 選擇照片天 -->
+			<div class="flex items-center gap-4">
+				<label for="schedulePeriod" class="w-1/3 text-center text-lg font-medium text-gray-500">照片天數</label>
+				<select :disabled="activate === '停用'" id="schedulePeriod" class="form-select" v-model="schedulePeriod">
+					<option v-for="schedulePeriod in schedulePeriods" :key="schedulePeriod" :value="schedulePeriod">{{ schedulePeriod }}</option>
+				</select>
+			</div>
+			<!-- 選擇儲存時間-->
+			<div class="flex items-center gap-4">
+				<label for="scheduleTiming" class="w-1/3 text-center text-lg font-medium text-gray-500">儲存時間點</label>
+				<select :disabled="activate === '停用'" id="scheduleTiming" class="form-select" v-model="scheduleTiming">
+					<option v-for="scheduleTiming in scheduleTimings" :key="scheduleTiming" :value="scheduleTiming">{{ scheduleTiming }}</option>
+				</select>
+			</div>
+			<!-- 選擇每秒播放張數 -->
+			<div class="flex items-center gap-4">
+				<label for="frameRate" class="w-1/3 text-center text-lg font-medium text-gray-500">每秒播放張數</label>
+				<select :disabled="activate === '停用'" id="frameRate" class="form-select" v-model="frameRate">
+					<option v-for="rate in frameRates" :key="rate" :value="rate">{{ rate }}</option>
+				</select>
+			</div>
+			<!-- 選擇抽取張數比例 -->
+			<div class="flex items-center gap-4">
+				<label for="frameRatio" class="w-1/3 text-center text-lg font-medium text-gray-500">抽取張數比例</label>
+				<select :disabled="activate === '停用'" id="frameRatio" class="form-select" v-model="frameRatio">
+					<option v-for="ratio in frameRatios" :key="ratio" :value="ratio">{{ ratio }}</option>
+				</select>
+			</div>
+		</form>
 	</div>
 </template>
 
