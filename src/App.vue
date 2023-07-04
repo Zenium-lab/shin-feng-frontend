@@ -4,6 +4,7 @@ import { RouterLink, RouterView } from 'vue-router';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { NMessageProvider } from 'naive-ui';
+import router from './router';
 const authStore = useAuthStore();
 const route = useRoute();
 let isLoginPage = ref(route.path === '/login');
@@ -21,7 +22,19 @@ const getCurrentYear = () => {
 
 const handleLogout = () => {
 	authStore.logout();
-	window.location.reload();
+	router.push('/login');
+};
+
+const hasVideoEditPermission = (): boolean => {
+	return authStore.userRole === '管理員' || authStore.userRole === '編輯者';
+};
+
+const hasUserEditPermission = (): boolean => {
+	return authStore.userRole === '管理員';
+};
+
+const hasAutoSavePermission = (): boolean => {
+	return authStore.userRole === '管理員';
 };
 </script>
 
@@ -41,16 +54,25 @@ const handleLogout = () => {
 			<div class="flex items-center gap-5">
 				<RouterLink to="/"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">影片瀏覽</div></RouterLink>
 				<div class="h-1 w-1 rounded-full bg-black"></div>
-				<RouterLink to="/video"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">影片剪輯</div></RouterLink>
-				<div class="h-1 w-1 rounded-full bg-black"></div>
-				<RouterLink to="/user"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">權限管理</div></RouterLink>
-				<div class="h-1 w-1 rounded-full bg-black"></div>
-				<RouterLink to="/snapshots"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">畫面觀看</div></RouterLink>
-				<div class="h-1 w-1 rounded-full bg-black"></div>
-				<RouterLink to="/video/scheduler"
-					><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">自動儲存</div></RouterLink
-				>
 
+				<template v-if="hasVideoEditPermission()">
+					<RouterLink to="/video"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">影片剪輯</div></RouterLink>
+					<div class="h-1 w-1 rounded-full bg-black"></div>
+				</template>
+
+				<template v-if="hasUserEditPermission()">
+					<RouterLink to="/user"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">權限管理</div></RouterLink>
+					<div class="h-1 w-1 rounded-full bg-black"></div>
+				</template>
+
+				<RouterLink to="/snapshots"><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">畫面觀看</div></RouterLink>
+
+				<template v-if="hasAutoSavePermission()">
+					<div class="h-1 w-1 rounded-full bg-black"></div>
+					<RouterLink to="/video/scheduler"
+						><div class="rounded-lg px-1 py-1 text-base font-normal text-black hover:bg-gray-300">自動儲存</div></RouterLink
+					>
+				</template>
 				<!-- Navbar 登出按鈕 -->
 				<button class="rounded-lg px-2 py-1 text-sm font-normal text-black text-gray-500 hover:bg-gray-300" @click="handleLogout">登出</button>
 			</div>
