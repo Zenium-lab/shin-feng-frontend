@@ -101,18 +101,28 @@ watch([startDate, startTime, endDate, endTime], () => {
 	if (startDate.value && startTime.value && endDate.value && endTime.value) {
 		const startTs = timeToTimestamp(startDate.value, startTime.value);
 		const endTs = timeToTimestamp(endDate.value, endTime.value);
+		if (startTs >= endTs) {
+			message.error('開始時間不可大於結束時間');
+			return;
+		}
 		API.listSnapshotsInRange(props.selectedIPCam.imei, startTs, endTs)
 			.then((res) => {
+				if (!res || res.length === 0) {
+					message.error('尚無資料');
+					return;
+				}
 				API.downloadSnapshotById(res[0].id)
 					.then((base64Img) => {
 						thumbnailSrc.value = base64Img;
 						imageLoading.value = false;
 					})
 					.catch((err) => {
+						message.error('預覽圖下載失敗');
 						console.error(err);
 					});
 			})
 			.catch((err) => {
+				message.error('尚無資料');
 				console.error(err);
 			});
 	}
