@@ -44,7 +44,7 @@
 				<div class="flex flex-col items-center justify-center gap-4 py-2">
 					<div class="flex w-full items-center justify-center gap-3">
 						<div class="text-md rounded-lg bg-zinc-200 px-5 py-1 font-medium leading-tight text-black">建立者</div>
-						<div class="text-md font-medium leading-tight text-black">{{ props.video.creator_name }}</div>
+						<div class="text-md font-medium leading-tight text-black">{{ props.video.creator_id !== 0 ? props.video.creator_name : '系統' }}</div>
 					</div>
 					<div class="text-md font-normal text-black text-opacity-50">{{ timestampToTime(props.video.created_at) }}</div>
 					<div class="text-md font-normal text-black text-opacity-50">{{ props.video.status }}</div>

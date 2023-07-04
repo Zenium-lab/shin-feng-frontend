@@ -38,9 +38,9 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import * as API from '@/api';
 import { timestampToTime } from '@/utils/date';
+
 const route = useRoute();
 const videoId = parseInt(route.params.id as string);
-
 // 取得該影片細節
 const getVideoDetail = async () => {
 	const res = await API.getVideoById(videoId);
