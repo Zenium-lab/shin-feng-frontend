@@ -73,6 +73,8 @@ import * as API from '@/api';
 import { timeToTimestamp } from '@/utils/date';
 import type { IPCam } from '@/api';
 import { useAuthStore } from '@/stores/auth';
+import { useMessage } from 'naive-ui';
+const message = useMessage();
 const authStore = useAuthStore();
 const props = defineProps({
 	selectedIPCam: {
@@ -118,6 +120,10 @@ watch([startDate, startTime, endDate, endTime], () => {
 
 // TODO: 開始製作影片
 const makeVideo = () => {
+	if (startDate.value === '' || startTime.value === '' || endDate.value === '' || endTime.value === '') {
+		message.error('請選擇開始時間與結束時間');
+		return;
+	}
 	const startTs = timeToTimestamp(startDate.value, startTime.value);
 	const endTs = timeToTimestamp(endDate.value, endTime.value);
 	// alert(`Make Video\nstart: ${startTs}\nend ${endTs}\nframeRate: ${frameRate.value}\nframeRatio: ${frameRatio.value}`);
@@ -129,6 +135,7 @@ const makeVideo = () => {
 		fps: frameRate.value / frameRatio.value,
 		imei: props.selectedIPCam.imei,
 	});
+	message.info('影片製作中，請稍後至 #影片瀏覽 頁面查看');
 };
 
 // 選項列表

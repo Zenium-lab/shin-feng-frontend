@@ -3,6 +3,7 @@ import { watch, ref } from 'vue';
 import { RouterLink, RouterView } from 'vue-router';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { NMessageProvider } from 'naive-ui';
 const authStore = useAuthStore();
 const route = useRoute();
 let isLoginPage = ref(route.path === '/login');
@@ -55,12 +56,13 @@ const handleLogout = () => {
 			</div>
 		</div>
 	</nav>
-
 	<div class="relative min-h-screen">
-		<RouterView v-if="isLoginPage" />
-		<div v-else class="container mx-auto gap-4 px-6 py-8">
-			<RouterView />
-		</div>
+		<NMessageProvider>
+			<RouterView v-if="isLoginPage" />
+			<div v-else class="container mx-auto gap-4 px-6 py-8">
+				<RouterView />
+			</div>
+		</NMessageProvider>
 	</div>
 	<!-- Footer 內容 -->
 	<footer class="bg-gray-200 py-4 text-center">

@@ -5,32 +5,15 @@ import { onMounted, ref } from 'vue';
 import { IPCam } from '@/api';
 import * as API from '@/api';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
+
 // Loading
 const isLoading = ref(false);
 const ipcamList = ref<IPCam[]>([]);
 const selectedIPCam = ref<IPCam>();
 // TODO: 取得所有IPcam
-const getIPCamList = async (): Promise<IPCam[]> => {
-	try {
-		const res = await API.listIPCams();
-		return res.data;
-	} catch (error) {
-		console.error(error);
-		return [
-			{
-				imei: 1,
-				name: 'IPCam1',
-			},
-			{
-				imei: 2,
-				name: 'IPCam2',
-			},
-			{
-				imei: 3,
-				name: 'IPCam3',
-			},
-		];
-	}
+const getIPCamList = async () => {
+	const res = await API.listIPCams();
+	return res.data;
 };
 onMounted(async () => {
 	try {
