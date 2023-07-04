@@ -45,7 +45,7 @@
 				<h2 class="mb-2 text-xl font-semibold">{{ snapshots.length > 0 ? timestampToTime(snapshots[selectedIdx - 1].created_at) : '尚無資料' }}</h2>
 				<p class="text-gray-500">{{ snapshots.length > 0 ? snapshots[selectedIdx - 1].ipcam_imei : 'no data' }}</p>
 			</div>
-			<button class="h-10 w-10 rounded-lg hover:bg-gray-200" @click="handleDownload">
+			<button class="h-10 w-10 rounded-lg hover:bg-gray-200" @click="handleDownload" :disabled="!selectedIdx">
 				<img src="svgs/download.svg" alt="Account" class="h-full w-full" />
 			</button>
 		</div>
