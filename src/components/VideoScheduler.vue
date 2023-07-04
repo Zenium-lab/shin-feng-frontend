@@ -17,21 +17,21 @@
 				<form class="col-span-2 flex w-full flex-col gap-4">
 					<!-- 選擇啟用與否 -->
 					<div class="flex items-center gap-4">
-						<label for="activate" class="w-1/3 text-center text-lg font-medium text-gray-500">每秒播放張數</label>
+						<label for="activate" class="w-1/3 text-center text-lg font-medium text-gray-500">是否啟用</label>
 						<select id="activate" class="form-select" v-model="activate">
 							<option v-for="activate in activates" :key="activate" :value="activate">{{ activate }}</option>
 						</select>
 					</div>
 					<!-- 選擇照片天 -->
 					<div class="flex items-center gap-4">
-						<label for="schedulePeriod" class="w-1/3 text-center text-lg font-medium text-gray-500">每秒播放張數</label>
+						<label for="schedulePeriod" class="w-1/3 text-center text-lg font-medium text-gray-500">照片天數</label>
 						<select id="schedulePeriod" class="form-select" v-model="schedulePeriod">
 							<option v-for="schedulePeriod in schedulePeriods" :key="schedulePeriod" :value="schedulePeriod">{{ schedulePeriod }}</option>
 						</select>
 					</div>
 					<!-- 選擇儲存時間-->
 					<div class="flex items-center gap-4">
-						<label for="scheduleTiming" class="w-1/3 text-center text-lg font-medium text-gray-500">每秒播放張數</label>
+						<label for="scheduleTiming" class="w-1/3 text-center text-lg font-medium text-gray-500">儲存時間點</label>
 						<select id="scheduleTiming" class="form-select" v-model="scheduleTiming">
 							<option v-for="scheduleTiming in scheduleTimings" :key="scheduleTiming" :value="scheduleTiming">{{ scheduleTiming }}</option>
 						</select>
