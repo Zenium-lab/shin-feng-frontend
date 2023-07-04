@@ -70,6 +70,8 @@ import TitleSection from '@/components/TitleSection.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { getStartEndOfDate, timestampToTime } from '@/utils/date';
 import * as API from '@/api';
+import { useMessage } from 'naive-ui';
+const message = useMessage();
 const isLoading = ref(false);
 const selectedIPCam = ref<API.IPCam>();
 const selectDate = ref('');
@@ -88,24 +90,34 @@ const handleDate = () => {
 
 	API.listSnapshotsInRange(selectedIPCam.value!.imei, start.getTime() / 1000, end.getTime() / 1000)
 		.then((res) => {
-			snapshots.value = res;
+			if (!res) {
+				message.error('尚無資料');
+				return;
+			} else {
+				snapshots.value = res;
 
-			snapshots.value.forEach((snapshot) => {
-				API.downloadSnapshotById(snapshot.id)
-					.then((base64Img) => {
-						snapshot.path = base64Img;
-					})
-					.catch((err) => {
-						console.error(err);
-					});
-			});
+				snapshots.value.forEach((snapshot) => {
+					API.downloadSnapshotById(snapshot.id)
+						.then((base64Img) => {
+							snapshot.path = base64Img;
+						})
+						.catch((err) => {
+							console.error(err);
+						});
+				});
+			}
 		})
 		.catch((err) => {
+			message.error('尚無資料');
 			console.error(err);
 		});
 };
 const handleDownload = () => {
 	const a = document.createElement('a');
+	if (snapshots.value.length === 0) {
+		message.error('尚無資料');
+		return;
+	}
 	a.href = snapshots.value[selectedIdx.value - 1].path;
 	a.download = `${timestampToTime(snapshots.value[selectedIdx.value - 1].created_at)}.png`;
 	a.click();
