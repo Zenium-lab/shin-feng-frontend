@@ -42,6 +42,6 @@ jobs:
           echo "$PRIVATE_KEY" > private_key && 
           chmod 600 private_key &&
           scp -o StrictHostKeyChecking=no -i private_key -r dist/ ${USER_NAME}@${HOSTNAME}:/tmp/html
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "sudo rm -r /usr/share/nginx/html/*"
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "sudo rm -rf /usr/share/nginx/html/"
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "sudo mv /tmp/html /usr/share/nginx/"
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "sudo systemctl restart nginx"
