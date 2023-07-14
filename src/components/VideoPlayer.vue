@@ -55,7 +55,7 @@ const getVideoDetail = async () => {
 // 下載影片
 let videoUrl = ref<string>();
 
-const getVideoSrc = async () => {
+const getVideoSrc = () => {
 	return `${import.meta.env.VITE_BASE_URL}/api/v1/videos/download/${videoId}`;
 };
 const creator = ref();
@@ -70,7 +70,7 @@ onMounted(async () => {
 		creationTime.value = videoDetail.creationTime;
 		startTime.value = videoDetail.startTime;
 		endTime.value = videoDetail.endTime;
-		videoUrl.value = await getVideoSrc();
+		videoUrl.value = getVideoSrc();
 		console.log(videoUrl.value);
 	} catch (error) {
 		console.error(error);
