@@ -38,7 +38,9 @@
 	</div>
 	<!-- 圖片 -->
 	<div class="mx-auto mt-8 max-w-3xl overflow-hidden rounded-lg bg-white shadow-lg">
-		<img v-if="snapshots.length > 0" class="h-96 w-full object-cover" :src="snapshots[selectedIdx - 1].path" alt="Image" />
+		<a v-if="snapshots.length > 0" :href="snapshots[selectedIdx - 1].path" target="_blank">
+			<img class="h-96 w-full object-cover" :src="snapshots[selectedIdx - 1].path" alt="Image" />
+		</a>
 		<div v-else class="h-96 w-full animate-pulse bg-slate-200"></div>
 		<div class="flex items-center justify-between p-4">
 			<div class="flex flex-col">
