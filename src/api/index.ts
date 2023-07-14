@@ -59,7 +59,7 @@ export const getUser = (id: number) => {
 
 // 獲取用戶列表
 export const listUsers = () => {
-	return API.get<UserMeta[]>('/users');
+	return API.get<UserMeta[]>('/users') || [];
 };
 // 新增使用者
 export const createUser = (userData: User) => {
@@ -72,7 +72,7 @@ export const deleteUser = (id: number) => {
 };
 // 獲取 IPCam 列表
 export const listIPCams = () => {
-	return API.get<IPCam[]>('/ipcams');
+	return API.get<IPCam[]>('/ipcams') || [];
 };
 
 // 創建 IPCam
@@ -88,7 +88,7 @@ export const listSnapshotsInRange = async (imei: number, startTime: number, endT
 			start_time: startTime,
 			end_time: endTime,
 		},
-	}).then((response) => response.data);
+	}).then((response) => response.data || []);
 };
 
 // 上傳一張照片
@@ -144,7 +144,7 @@ export const downloadVideoById = async (videoId: number) => {
 
 // 取得所有影片
 export const getAllVideos = () => {
-	return API.get<Video[]>('/videos');
+	return API.get<Video[]>('/videos') || [];
 };
 
 // 請求建立影片
