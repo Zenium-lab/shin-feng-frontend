@@ -18,7 +18,8 @@ const getIPCamList = async () => {
 onMounted(async () => {
 	try {
 		isLoading.value = true;
-		ipcamList.value = await getIPCamList();
+		let result = await getIPCamList();
+		ipcamList.value = result || [];
 		selectedIPCam.value = ipcamList.value[0] || '';
 		isLoading.value = false;
 	} catch (error) {

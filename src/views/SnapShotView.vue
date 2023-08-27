@@ -84,7 +84,7 @@ const ipcamList = ref<API.IPCam[]>([]);
 
 onMounted(() => {
 	API.listIPCams().then((res) => {
-		ipcamList.value = res.data;
+		ipcamList.value = res.data || [];
 		selectedIPCam.value = ipcamList.value[0] || '';
 	});
 });
