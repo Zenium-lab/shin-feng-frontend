@@ -76,12 +76,17 @@ export const listIPCams = () => {
 };
 
 // 創建 IPCam
-export const createIPCam = (ipcam: IPCam): Promise<void> => {
-	return API.post('/ipcams', ipcam);
+export const createIPCam = (imei: IPCam): Promise<void> => {
+	return API.post('/ipcams', {
+		imei,
+	});
 };
-
+// 刪除 IPCam
+export const deleteIPCam = (imei: IPCam): Promise<void> => {
+	return API.delete(`/ipcams/${imei}`);
+};
 // 獲取指定時間段內的截圖列表
-export const listSnapshotsInRange = async (imei: number, startTime: number, endTime: number): Promise<Snapshot[]> => {
+export const listSnapshotsInRange = async (imei: string, startTime: number, endTime: number): Promise<Snapshot[]> => {
 	return API.get('/snapshots', {
 		params: {
 			imei,
@@ -162,25 +167,19 @@ export const cancelCreateVideo = (videoId: number) => {
 	return API.delete<void>(`/videos/cancel/${videoId}`);
 };
 
-function extractIPAddressAndPort(url: string): string | null {
-	const regex = /^(https?:\/\/)?([\d.]+)(?::(\d+))?/;
-	const match = url.match(regex);
 
-	if (match) {
-		const ipAddress = match[2];
-		const port = match[3] ? `:${match[3]}` : '';
-		return ipAddress + port;
-	}
-
-	return null;
-}
 
 // 建立 websocket 連線取得製作進度
 export const getVideoProgress = (videoId: number): WebSocket => {
-	const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-	const origin = extractIPAddressAndPort(import.meta.env.VITE_BASE_URL);
-	if (origin === null) throw new Error('Invalid base URL');
-	const url = `${protocol}//${origin}/api/v1/videos/progress?videoId=${videoId}`;
+	let origin =  import.meta.env.VITE_BASE_URL
+	if (origin.startsWith('https:')) {
+        origin = origin.replace('https:', 'wss:');
+    } else if (origin.startsWith('http:')) {
+        origin = origin.replace('http:', 'ws:');
+    }
+
+	const url = `${origin}/api/v1/videos/progress?videoId=${videoId}`;
+	console.log(url);
 	return new WebSocket(url);
 };
 
@@ -188,6 +187,7 @@ export const getVideoProgress = (videoId: number): WebSocket => {
 export interface Progress {
 	videoId: number;
 	progress: number;
+	type: "下載中" |  "製作中"
 	elapsed: number;
 	remain: number;
 }
@@ -202,10 +202,7 @@ export interface LoginResponse {
 	user: UserMeta;
 }
 
-export interface IPCam {
-	imei: number;
-	name: string;
-}
+export type IPCam = string;
 
 export interface Snapshot {
 	id: number;
@@ -220,7 +217,7 @@ export interface VideoInput {
 	start_time: number;
 	end_time: number;
 	fps: number;
-	imei: number;
+	imei: string;
 }
 
 export interface Video {

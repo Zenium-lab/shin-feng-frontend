@@ -1,5 +1,7 @@
 <template>
-	<div class="flex h-auto w-full flex-col items-center justify-start rounded-md border border-gray-100 border-opacity-10 py-2 shadow-md lg:flex-row">
+	<div
+		class="relative flex h-auto w-full flex-col items-center justify-start rounded-md border border-gray-100 border-opacity-10 py-2 shadow-md lg:flex-row"
+	>
 		<!-- 照片 -->
 		<div class="flex max-h-80 w-full items-center justify-center gap-4 rounded-md lg:w-1/3">
 			<div class="relative h-32 w-60 bg-zinc-300 bg-opacity-50">
@@ -19,7 +21,7 @@
 		</div>
 
 		<!-- 主要內容 -->
-		<div class="flex w-full flex-col items-start justify-start py-2 lg:w-2/3">
+		<div class="flex w-full flex-col items-start justify-center px-6 py-2 lg:w-2/3">
 			<div class="flex w-full flex-col items-center justify-center md:flex-row lg:gap-10">
 				<!-- 開始時間和結束時間 -->
 				<div class="flex flex-col items-center justify-center gap-1">
@@ -47,31 +49,69 @@
 						<div class="text-md font-medium leading-tight text-black">{{ props.video.creator_id !== 0 ? props.video.creator_name : '系統' }}</div>
 					</div>
 					<div class="text-md font-normal text-black text-opacity-50">{{ timestampToTime(props.video.created_at) }}</div>
-					<div class="text-md font-normal text-black text-opacity-50">{{ props.video.status }}</div>
+					<!-- <div class="text-md font-normal text-black text-opacity-50">{{ props.video.status }}</div> -->
 				</div>
 			</div>
 			<!-- 下載進度 -->
-			<div v-if="props.video.status === '處理中'" class="flex w-full items-center justify-between px-6 py-1">
-				<div class="grid w-3/4 grid-cols-4">
+			<div
+				v-if="props.video.status === '處理中' && progress.type === '下載中'"
+				class="grid w-full grid-cols-2 items-center justify-between gap-2 px-6 py-1 sm:grid-cols-3"
+			>
+				<div class="col-span-2 grid grid-cols-4">
 					<div class="col-span-3 h-6 rounded-lg bg-gray-200">
 						<div class="h-full rounded-lg bg-yellow-300" :style="{ width: `${progress.progress}%` }"></div>
 					</div>
-					<button class="col-span-1 mx-4 rounded-lg bg-yellow-400 px-3 py-1 text-xs font-normal text-black hover:bg-yellow-500">取消</button>
+					<button
+						class="col-span-1 mx-4 inline-flex items-center justify-center rounded-lg px-1 py-1 text-xs font-normal text-black hover:bg-yellow-200"
+						@click="handleCancelCreateVideo"
+					>
+						<img src="svgs/trash-yellow.svg" alt="圖標" class="h-4 w-4" />
+					</button>
 				</div>
-				<div class="ml-4 flex w-1/4 items-center justify-center gap-4">
-					<div class="text-[1rem] font-normal leading-tight text-black">{{ progress.progress }}% 剩餘{{ formatTime(progress.remain) }}</div>
+				<div class="col-span-2 flex items-center justify-center gap-4 sm:col-span-1">
+					<div class="text-[1rem] font-normal leading-tight text-black">{{ progress.progress }}%</div>
+					<n-spin :size="20" />
+					<div class="text-[0.9rem]">{{ progress.type }}</div>
+				</div>
+			</div>
+			<div
+				v-if="props.video.status === '處理中' && progress.type === '製作中'"
+				class="grid w-full grid-cols-2 items-center justify-between gap-2 px-6 py-1 sm:grid-cols-3"
+			>
+				<div class="col-span-2 grid grid-cols-4">
+					<div class="col-span-3 h-6 rounded-lg bg-gray-200">
+						<div class="h-full rounded-lg bg-yellow-300" :style="{ width: `${progress.progress}%` }"></div>
+					</div>
+					<button
+						class="col-span-1 mx-4 inline-flex items-center justify-center rounded-lg bg-yellow-400 px-3 py-1 text-xs font-normal text-black hover:bg-yellow-500"
+						@click="handleCancelCreateVideo"
+					>
+						取消
+					</button>
+				</div>
+				<div class="col-span-2 flex items-center justify-center gap-4 sm:col-span-1">
+					<div class="inline-flex justify-between gap-2 text-[1rem] font-normal leading-tight text-black">
+						{{ progress.progress }}% <span class="text-zinc-500"> 剩餘 </span> {{ formatTime(progress.remain) }}
+					</div>
+					<div class="text-[0.9rem] font-semibold text-green-500">{{ progress.type }}</div>
 				</div>
 			</div>
 		</div>
+		<!-- delete icon button -->
+		<button class="absolute right-0 top-0 mr-6 rounded-lg p-2 hover:animate-bounce hover:bg-red-200" @click="handleDeleteVideo">
+			<img src="svgs/trash.svg" alt="圖標" class="h-4 w-4" />
+		</button>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { NSpin, useMessage } from 'naive-ui';
 import * as API from '@/api';
 import type { Video, Progress } from '@/api';
 import { timestampToTime } from '@/utils/date';
-const emit = defineEmits(['updateVideoStatus']);
+const emit = defineEmits(['updateVideoStatus', 'refreshVideoList']);
+const message = useMessage();
 const props = defineProps({
 	video: {
 		type: Object as () => Video,
@@ -80,6 +120,7 @@ const props = defineProps({
 });
 const progress: Progress = reactive({
 	progress: 0,
+	type: '下載中',
 	elapsed: 0,
 	remain: 0,
 	videoId: props.video.id,
@@ -107,6 +148,7 @@ if (props.video.status === '處理中') {
 		};
 		websocket.onmessage = (event) => {
 			try {
+				console.log(event.data);
 				const progressMessage: Progress = JSON.parse(event.data);
 				if (progressMessage.videoId === props.video.id) {
 					// 更新進度
@@ -114,20 +156,22 @@ if (props.video.status === '處理中') {
 					progress.elapsed = progressMessage.elapsed;
 					progress.remain = progressMessage.remain;
 				}
-				if (progressMessage.progress === 100) {
-					// TODO: emit event to update this video status
-					emit('updateVideoStatus', props.video.id, '已完成');
+				if (progressMessage.progress === 100 || progressMessage.type === '製作中') {
+					emit('refreshVideoList');
 					websocket.close();
 				}
 			} catch (err: unknown) {
+				emit('refreshVideoList');
 				console.error('websocket message parse error', err);
 			}
 		};
 		websocket.onclose = (event) => {
 			console.log(event);
+			emit('refreshVideoList');
 			console.log('websocket disconnected');
 		};
 		websocket.onerror = (event) => {
+			emit('refreshVideoList');
 			console.error(event);
 		};
 	} catch (err: unknown) {
@@ -156,6 +200,29 @@ const getThumbnailById = async (snapshotId: number): Promise<string> => {
 	} catch (error) {
 		console.error(error);
 		return '';
+	}
+};
+// 刪除影片
+const handleDeleteVideo = async () => {
+	try {
+		await API.deleteVideo(props.video.id);
+		message.success('刪除成功');
+		emit('refreshVideoList');
+	} catch (error) {
+		console.error(error);
+		emit('refreshVideoList');
+		message.error('刪除失敗');
+	}
+};
+const handleCancelCreateVideo = async () => {
+	try {
+		await API.cancelCreateVideo(props.video.id);
+		message.success('取消成功');
+		emit('refreshVideoList');
+	} catch (error) {
+		console.error(error);
+		emit('refreshVideoList');
+		message.error('取消失敗');
 	}
 };
 </script>

@@ -3,6 +3,7 @@ import TitleSection from '@/components/TitleSection.vue';
 import VideoMaker from '@/components/VideoMaker.vue';
 import { onMounted, ref } from 'vue';
 import { IPCam } from '@/api';
+import { NSelect } from 'naive-ui';
 import * as API from '@/api';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 // Loading
@@ -35,13 +36,15 @@ onMounted(async () => {
 		<!-- 選擇 IPCam 的 dropdown -->
 		<div class="col-span-1 flex items-center justify-center lg:justify-end">
 			<div class="relative inline-block w-64">
-				<select
-					v-model="selectedIPCam"
-					class="block w-full appearance-none rounded border border-gray-300 bg-white px-4 py-2 pr-8 leading-tight shadow hover:border-gray-400 focus:outline-none focus:ring focus:ring-blue-300"
-				>
-					<option disabled value="">請選擇 IPCam</option>
-					<option v-for="ipcam in ipcamList" :key="ipcam.imei" :value="ipcam">{{ ipcam.name }}({{ ipcam.imei }})</option>
-				</select>
+				<n-select
+					v-model:value="selectedIPCam"
+					:options="
+						ipcamList.map((ipcam) => ({
+							label: ipcam,
+							value: ipcam,
+						}))
+					"
+				/>
 				<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
 					<svg
 						class="h-4 w-4 fill-current"
