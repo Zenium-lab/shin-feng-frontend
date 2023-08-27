@@ -5,8 +5,10 @@ import VideoCard from '@/components/VideoCard.vue';
 import { reactive, ref, computed, onMounted } from 'vue';
 import type { StatusInfo, Status } from '@/types';
 import * as API from '@/api';
-import { Video, IPCam } from '@/api';
+import { Video } from '@/api';
+import type { IPCam } from '@/api';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import { NModal, NCard, useMessage, NSelect } from 'naive-ui';
 const statusList: StatusInfo[] = reactive([
 	{ icon: 'svgs/status/done.svg', statusName: '已完成', statusNumber: 0, color: 'bg-emerald-300' },
 	{ icon: 'svgs/status/in-progress.svg', statusName: '處理中', statusNumber: 0, color: 'bg-yellow-300' },
@@ -14,7 +16,7 @@ const statusList: StatusInfo[] = reactive([
 	{ icon: 'svgs/status/error.svg', statusName: '發生錯誤', statusNumber: 0, color: 'bg-red-300' },
 	{ icon: 'svgs/status/schedule.svg', statusName: '系統排程', statusNumber: 0, color: 'bg-blue-300' },
 ]);
-
+const message = useMessage();
 const videoList = ref<Video[]>([]);
 const ipcamList = ref<IPCam[]>([]);
 const selectedIPCam = ref<IPCam>();
@@ -44,23 +46,10 @@ const isLoading = ref(false);
 const getIPCamList = async (): Promise<IPCam[]> => {
 	try {
 		const res = await API.listIPCams();
-		return res.data;
+		return res.data || [];
 	} catch (error) {
 		console.error(error);
-		return [
-			{
-				imei: 1,
-				name: 'IPCam1',
-			},
-			{
-				imei: 2,
-				name: 'IPCam2',
-			},
-			{
-				imei: 3,
-				name: 'IPCam3',
-			},
-		];
+		return [];
 	}
 };
 // 取得所有影片資訊
@@ -74,8 +63,7 @@ onMounted(async () => {
 	try {
 		ipcamList.value = await getIPCamList();
 		selectedIPCam.value = ipcamList.value[0];
-		videoList.value = await getVideoList();
-
+		videoList.value = (await getVideoList()) || [];
 		// 統計每個狀態的數量
 		statusCounts.value = videoList.value.reduce((counts, video) => {
 			const status = video.status;
@@ -92,6 +80,20 @@ onMounted(async () => {
 	}
 	isLoading.value = false;
 });
+const refreshVideoList = async () => {
+	videoList.value = (await getVideoList()) || [];
+	// 統計每個狀態的數量
+	statusCounts.value = videoList.value.reduce((counts, video) => {
+		const status = video.status;
+		counts[status] = (counts[status] || 0) + 1;
+		return counts;
+	}, {} as Record<string, number>);
+
+	// 設定indicator
+	statusList.forEach((status) => {
+		status.statusNumber = statusCounts.value[status.statusName] || 0;
+	});
+};
 // 選擇的狀態
 const selectedStatus = ref('');
 
@@ -108,6 +110,36 @@ const filteredVideoList = computed(() => {
 		return videoList.value.filter((video) => video.status === selectedStatus.value);
 	}
 });
+const addIPCam = (imei: string) => {
+	API.createIPCam(imei)
+		.then(async (_) => {
+			ipcamList.value = await getIPCamList();
+			selectedIPCam.value = ipcamList.value[0] || '';
+			ipcamInput.value = '';
+			message.success('新增成功');
+			showModal.value = false;
+		})
+		.catch((err) => {
+			message.error('新增失敗');
+			console.error(err);
+		});
+};
+const showModal = ref(false);
+const ipcamInput = ref('');
+const handleDeleteIPCam = () => {
+	if (selectedIPCam.value) {
+		API.deleteIPCam(selectedIPCam.value)
+			.then(async (_) => {
+				ipcamList.value = await getIPCamList();
+				selectedIPCam.value = ipcamList.value[0] || '';
+				message.success('刪除成功');
+			})
+			.catch((err) => {
+				message.error('刪除失敗');
+				console.error(err);
+			});
+	}
+};
 </script>
 
 <template>
@@ -117,15 +149,20 @@ const filteredVideoList = computed(() => {
 			<TitleSection title="影片瀏覽" subtitle="這裡會有所有的影片，包含正在剪輯中的影片" />
 		</div>
 		<!-- 選擇 IPCam 的 dropdown -->
-		<div class="col-span-1 flex items-center justify-center lg:justify-end">
+		<div class="col-span-1 flex items-center justify-center gap-3 lg:justify-end">
 			<div class="relative inline-block w-64">
-				<select
-					v-model="selectedIPCam"
-					class="block w-full appearance-none rounded border border-gray-300 bg-white px-4 py-2 pr-8 leading-tight shadow hover:border-gray-400 focus:outline-none focus:ring focus:ring-blue-300"
-				>
-					<option disabled value="">請選擇 IPCam</option>
-					<option v-for="ipcam in ipcamList" :key="ipcam.imei" :value="ipcam">{{ ipcam.name }}({{ ipcam.imei }})</option>
-				</select>
+				<n-select
+					v-model:value="selectedIPCam"
+					:options="
+						ipcamList.map((ipcam) => ({
+							label: ipcam,
+							value: ipcam,
+						}))
+					"
+					clearable
+					@clear="handleDeleteIPCam"
+				/>
+
 				<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
 					<svg
 						class="h-4 w-4 fill-current"
@@ -141,6 +178,41 @@ const filteredVideoList = computed(() => {
 					</svg>
 				</div>
 			</div>
+			<button
+				@click="showModal = true"
+				class="inline-flex items-center justify-center rounded-lg bg-zinc-200 px-4 py-2 font-normal text-black hover:bg-zinc-300"
+			>
+				新增
+			</button>
+			<n-modal v-model:show="showModal">
+				<n-card style="width: 600px" title="新增 IP Camera (IMEI)" :bordered="false" size="huge" role="dialog" aria-modal="true">
+					<template #header-extra> </template>
+					<input
+						v-model="ipcamInput"
+						class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
+						id="IPCam"
+						type="text"
+						placeholder="IPCam ex. 1234567890"
+					/>
+
+					<template #footer>
+						<div class="flex justify-around">
+							<button
+								@click="addIPCam(ipcamInput)"
+								class="py-2font-normal inline-flex items-center justify-center rounded-lg bg-green-200 px-4 text-black hover:bg-green-300"
+							>
+								確定
+							</button>
+							<button
+								class="inline-flex items-center justify-center rounded-lg bg-red-200 px-4 py-2 font-normal text-black hover:bg-red-300"
+								@click="showModal = false"
+							>
+								取消
+							</button>
+						</div>
+					</template>
+				</n-card>
+			</n-modal>
 		</div>
 	</div>
 	<!-- Status Indicator -->
@@ -158,6 +230,7 @@ const filteredVideoList = computed(() => {
 	</div>
 	<div class="mt-6 flex flex-col justify-center gap-5">
 		<VideoCard
+			@refresh-video-list="() => refreshVideoList()"
 			@update-video-status="(videoId, status) => updateStatus(videoId, status)"
 			v-for="video in filteredVideoList"
 			:key="video.id"

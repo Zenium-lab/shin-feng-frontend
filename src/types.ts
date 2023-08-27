@@ -27,7 +27,7 @@ export interface LoginResponse {
 }
 
 export interface IPCam {
-    imei: number;
+    imei: string;
 }
 
 export interface Snapshot {
@@ -35,7 +35,7 @@ export interface Snapshot {
     created_at: string;
     path: string;
     thumbnail_path: string;
-    ipcam_imei: string;
+    imei: string;
 }
 
 export interface VideoInput {

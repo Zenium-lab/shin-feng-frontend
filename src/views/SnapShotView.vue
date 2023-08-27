@@ -13,13 +13,15 @@
 			</div>
 		</div>
 		<div class="relative col-span-1 inline-block w-64">
-			<select
-				v-model="selectedIPCam"
-				class="block w-full appearance-none rounded border border-gray-300 bg-white px-4 py-2 pr-8 leading-tight shadow hover:border-gray-400 focus:outline-none focus:ring focus:ring-blue-300"
-			>
-				<option disabled value="">請選擇 IPCam</option>
-				<option v-for="ipcam in ipcamList" :key="ipcam.imei" :value="ipcam">{{ ipcam.name }}({{ ipcam.imei }})</option>
-			</select>
+			<n-select
+				v-model:value="selectedIPCam"
+				:options="
+					ipcamList.map((ipcam) => ({
+						label: ipcam,
+						value: ipcam,
+					}))
+				"
+			/>
 			<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
 				<svg
 					class="h-4 w-4 fill-current"
@@ -72,7 +74,7 @@ import TitleSection from '@/components/TitleSection.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { getStartEndOfDate, timestampToTime } from '@/utils/date';
 import * as API from '@/api';
-import { useMessage } from 'naive-ui';
+import { useMessage, NSelect } from 'naive-ui';
 const message = useMessage();
 const isLoading = ref(false);
 const selectedIPCam = ref<API.IPCam>();
@@ -90,7 +92,7 @@ const snapshots = ref<API.Snapshot[]>([]);
 const handleDate = () => {
 	const { start, end } = getStartEndOfDate(selectDate.value);
 
-	API.listSnapshotsInRange(selectedIPCam.value!.imei, start.getTime() / 1000, end.getTime() / 1000)
+	API.listSnapshotsInRange(selectedIPCam.value!, start.getTime() / 1000, end.getTime() / 1000)
 		.then((res) => {
 			if (!res) {
 				message.error('尚無資料');
