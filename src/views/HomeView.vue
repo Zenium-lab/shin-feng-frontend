@@ -61,8 +61,9 @@ const getVideoList = async () => {
 onMounted(async () => {
 	isLoading.value = true;
 	try {
-		ipcamList.value = await getIPCamList();
-		selectedIPCam.value = ipcamList.value[0];
+		let result = await getIPCamList();
+		ipcamList.value = result || [];
+		selectedIPCam.value = ipcamList.value[0] || '';
 		videoList.value = (await getVideoList()) || [];
 		// 統計每個狀態的數量
 		statusCounts.value = videoList.value.reduce((counts, video) => {
@@ -113,7 +114,8 @@ const filteredVideoList = computed(() => {
 const addIPCam = (imei: string) => {
 	API.createIPCam(imei)
 		.then(async (_) => {
-			ipcamList.value = await getIPCamList();
+			let result = await getIPCamList();
+			ipcamList.value = result || [];
 			selectedIPCam.value = ipcamList.value[0] || '';
 			ipcamInput.value = '';
 			message.success('新增成功');
@@ -130,7 +132,8 @@ const handleDeleteIPCam = () => {
 	if (selectedIPCam.value) {
 		API.deleteIPCam(selectedIPCam.value)
 			.then(async (_) => {
-				ipcamList.value = await getIPCamList();
+				let result = await getIPCamList();
+				ipcamList.value = result || [];
 				selectedIPCam.value = ipcamList.value[0] || '';
 				message.success('刪除成功');
 			})
