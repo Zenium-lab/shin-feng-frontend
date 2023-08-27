@@ -19,7 +19,7 @@ onMounted(async () => {
 	try {
 		isLoading.value = true;
 		ipcamList.value = await getIPCamList();
-		selectedIPCam.value = ipcamList.value[0];
+		selectedIPCam.value = ipcamList.value[0] || '';
 		isLoading.value = false;
 	} catch (error) {
 		isLoading.value = false;
