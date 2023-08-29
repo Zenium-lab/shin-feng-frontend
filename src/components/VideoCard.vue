@@ -97,25 +97,57 @@
 				</div>
 			</div>
 		</div>
+		<!-- 處理狀態標籤 -->
+		<div class="absolute bottom-0 right-3 flex flex-col items-center justify-center gap-4 py-2 text-xs">
+			<div :class="['text-md rounded-lg p-1 font-medium leading-tight', props.color]">{{ props.video.status }}</div>
+		</div>
 		<!-- delete icon button -->
-		<button class="absolute right-0 top-0 mr-6 rounded-lg p-2 hover:animate-bounce hover:bg-red-200" @click="handleDeleteVideo">
-			<img src="svgs/trash.svg" alt="圖標" class="h-4 w-4" />
+		<button class="absolute right-0 top-0 mr-6 rounded-lg p-2 hover:animate-bounce hover:bg-red-200" @click="showModal = true">
+			<img src="svgs/trash.svg" alt="圖標" class="h-3 w-3" />
 		</button>
+		<!-- delete modal -->
+		<n-modal v-model:show="showModal">
+			<n-card style="width: 600px" title="重大更新確認" :bordered="false" size="huge" role="dialog" aria-modal="true">
+				<template #header-extra> </template>
+				<div class="text-lg font-semibold text-black">確定要刪除影片嗎？</div>
+				<template #footer>
+					<div class="flex justify-around">
+						<button
+							@click="handleDeleteVideo"
+							class="py-2font-normal text-ㄏㄜ inline-flex items-center justify-center rounded-lg bg-green-300 px-4 hover:bg-green-800"
+						>
+							確定
+						</button>
+						<button
+							class="inline-flex items-center justify-center rounded-lg bg-red-200 px-4 py-2 font-normal text-black hover:bg-red-300"
+							@click="showModal = false"
+						>
+							取消
+						</button>
+					</div>
+				</template>
+			</n-card>
+		</n-modal>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, reactive, ref } from 'vue';
-import { NSpin, useMessage } from 'naive-ui';
+import { NSpin, useMessage, NModal, NCard } from 'naive-ui';
 import * as API from '@/api';
 import type { Video, Progress } from '@/api';
 import { timestampToTime } from '@/utils/date';
 const emit = defineEmits(['updateVideoStatus', 'refreshVideoList']);
+const showModal = ref(false);
 const message = useMessage();
 const props = defineProps({
 	video: {
 		type: Object as () => Video,
 		required: true,
+	},
+	color: {
+		type: String,
+		default: 'text-gray',
 	},
 });
 const progress: Progress = reactive({
@@ -156,22 +188,25 @@ if (props.video.status === '處理中') {
 					progress.elapsed = progressMessage.elapsed;
 					progress.remain = progressMessage.remain;
 				}
-				if (progressMessage.progress === 100 || progressMessage.type === '製作中') {
-					emit('refreshVideoList');
+				if (progressMessage.progress === 100 && progressMessage.type === '下載中') {
+					emit('refreshVideoList', props.video.imei);
+				}
+				if (progressMessage.progress === 100 && progressMessage.type === '製作中') {
+					emit('refreshVideoList', props.video.imei);
 					websocket.close();
 				}
 			} catch (err: unknown) {
-				emit('refreshVideoList');
+				emit('refreshVideoList', props.video.imei);
 				console.error('websocket message parse error', err);
 			}
 		};
 		websocket.onclose = (event) => {
 			console.log(event);
-			emit('refreshVideoList');
+			emit('refreshVideoList', props.video.imei);
 			console.log('websocket disconnected');
 		};
 		websocket.onerror = (event) => {
-			emit('refreshVideoList');
+			emit('refreshVideoList', props.video.imei);
 			console.error(event);
 		};
 	} catch (err: unknown) {
@@ -186,6 +221,7 @@ onUnmounted(() => {
 const thumbnailSrc = ref('');
 onMounted(async () => {
 	try {
+		if (!props.video.first_snapshot_id) return;
 		const res = await getThumbnailById(props.video.first_snapshot_id);
 		thumbnailSrc.value = res;
 	} catch (error) {
@@ -206,11 +242,12 @@ const getThumbnailById = async (snapshotId: number): Promise<string> => {
 const handleDeleteVideo = async () => {
 	try {
 		await API.deleteVideo(props.video.id);
+		showModal.value = false;
 		message.success('刪除成功');
-		emit('refreshVideoList');
+		emit('refreshVideoList', props.video.imei);
 	} catch (error) {
 		console.error(error);
-		emit('refreshVideoList');
+		emit('refreshVideoList', props.video.imei);
 		message.error('刪除失敗');
 	}
 };
@@ -218,10 +255,10 @@ const handleCancelCreateVideo = async () => {
 	try {
 		await API.cancelCreateVideo(props.video.id);
 		message.success('取消成功');
-		emit('refreshVideoList');
+		emit('refreshVideoList', props.video.imei);
 	} catch (error) {
 		console.error(error);
-		emit('refreshVideoList');
+		emit('refreshVideoList', props.video.imei);
 		message.error('取消失敗');
 	}
 };
