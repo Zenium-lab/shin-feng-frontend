@@ -49,9 +49,14 @@
 				<h2 class="mb-2 text-xl font-semibold">{{ snapshots.length > 0 ? timestampToTime(snapshots[selectedIdx - 1].created_at) : '尚無資料' }}</h2>
 				<p class="text-gray-500">{{ snapshots.length > 0 ? snapshots[selectedIdx - 1].ipcam_imei : 'no data' }}</p>
 			</div>
-			<button class="h-10 w-10 rounded-lg hover:bg-gray-200" @click="handleDownload" :disabled="!selectedIdx">
-				<img src="svgs/download.svg" alt="Account" class="h-full w-full" />
-			</button>
+			<div class="flex items-center justify-center gap-4">
+				<button class="h-12 w-12 rounded-lg p-2 hover:bg-gray-200" @click="handleDownload" :disabled="!selectedIdx">
+					<img src="svgs/download.svg" alt="Account" class="h-full w-full" />
+				</button>
+				<button class="h-12 w-12 rounded-lg p-3 hover:bg-gray-200" @click="handleDelete" :disabled="!selectedIdx">
+					<img src="svgs/trashcan.svg" alt="Account" class="h-full w-full" />
+				</button>
+			</div>
 		</div>
 	</div>
 
@@ -69,7 +74,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import TitleSection from '@/components/TitleSection.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { getStartEndOfDate, timestampToTime } from '@/utils/date';
@@ -88,6 +93,17 @@ onMounted(() => {
 		selectedIPCam.value = ipcamList.value[0] || '';
 	});
 });
+
+// 如果selectedIPCam改變，就重新取得videoList
+watch(selectedIPCam, async (newIPCam, oldIPCam) => {
+	if (newIPCam !== oldIPCam) {
+		// 清空snapshots, selectedIdx, selectDate
+		snapshots.value = [];
+		selectedIdx.value = 1;
+		selectDate.value = '';
+	}
+});
+
 const snapshots = ref<API.Snapshot[]>([]);
 const handleDate = () => {
 	const { start, end } = getStartEndOfDate(selectDate.value);
@@ -107,6 +123,7 @@ const handleDate = () => {
 						})
 						.catch((err) => {
 							console.error(err);
+							message.error('尚無資料');
 						});
 				});
 			}
@@ -125,6 +142,23 @@ const handleDownload = () => {
 	a.href = snapshots.value[selectedIdx.value - 1].path;
 	a.download = `${timestampToTime(snapshots.value[selectedIdx.value - 1].created_at)}.png`;
 	a.click();
+};
+const handleDelete = () => {
+	if (snapshots.value.length === 0) {
+		message.error('尚無資料');
+		return;
+	}
+	snapshots.value.splice(selectedIdx.value - 1, 1);
+	API.deleteSnapshotById(snapshots.value[selectedIdx.value - 1].id)
+		.then(() => {
+			message.success('刪除成功');
+			// snapshots.value.splice(selectedIdx.value - 1, 1);
+			selectedIdx.value = 1;
+		})
+		.catch((err) => {
+			message.error('刪除失敗');
+			console.error(err);
+		});
 };
 </script>
 <style scoped></style>

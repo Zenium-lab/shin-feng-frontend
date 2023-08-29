@@ -2,7 +2,7 @@
 import TitleSection from '@/components/TitleSection.vue';
 import StatusIndicator from '@/components/StatusIndicator.vue';
 import VideoCard from '@/components/VideoCard.vue';
-import { reactive, ref, computed, onMounted } from 'vue';
+import { reactive, ref, computed, onMounted, watch } from 'vue';
 import type { StatusInfo, Status } from '@/types';
 import * as API from '@/api';
 import { Video } from '@/api';
@@ -10,17 +10,18 @@ import type { IPCam } from '@/api';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { NModal, NCard, useMessage, NSelect } from 'naive-ui';
 const statusList: StatusInfo[] = reactive([
-	{ icon: 'svgs/status/done.svg', statusName: '已完成', statusNumber: 0, color: 'bg-emerald-300' },
-	{ icon: 'svgs/status/in-progress.svg', statusName: '處理中', statusNumber: 0, color: 'bg-yellow-300' },
-	{ icon: 'svgs/status/canceled.svg', statusName: '已取消', statusNumber: 0, color: 'bg-gray-300' },
-	{ icon: 'svgs/status/error.svg', statusName: '發生錯誤', statusNumber: 0, color: 'bg-red-300' },
-	{ icon: 'svgs/status/schedule.svg', statusName: '系統排程', statusNumber: 0, color: 'bg-blue-300' },
+	{ icon: 'svgs/status/done.svg', statusName: '已完成', statusNumber: 0, color: 'bg-emerald-300', textColor: 'text-emerald-400' },
+	{ icon: 'svgs/status/in-progress.svg', statusName: '處理中', statusNumber: 0, color: 'bg-yellow-300', textColor: 'text-yellow-400' },
+	{ icon: 'svgs/status/canceled.svg', statusName: '已取消', statusNumber: 0, color: 'bg-gray-300', textColor: 'text-gray-400' },
+	{ icon: 'svgs/status/error.svg', statusName: '發生錯誤', statusNumber: 0, color: 'bg-red-300', textColor: 'text-red-400' },
+	{ icon: 'svgs/status/schedule.svg', statusName: '系統排程', statusNumber: 0, color: 'bg-blue-300', textColor: 'text-blue-400' },
 ]);
 const message = useMessage();
-const videoList = ref<Video[]>([]);
 const ipcamList = ref<IPCam[]>([]);
 const selectedIPCam = ref<IPCam>();
 const statusCounts = ref<Record<string, number>>({});
+const videoList = ref<Video[]>([]);
+
 // Update status
 const updateStatus = (videoId: number, status: Status) => {
 	const video = videoList.value.find((video) => video.id === videoId);
@@ -52,48 +53,51 @@ const getIPCamList = async (): Promise<IPCam[]> => {
 		return [];
 	}
 };
+
 // 取得所有影片資訊
 const getVideoList = async () => {
 	const res = await API.getAllVideos();
 	return res.data;
 };
 
+// 如果selectedIPCam改變，就重新取得videoList
+watch(selectedIPCam, async (newIPCam, oldIPCam) => {
+	if (newIPCam !== oldIPCam) {
+		const allVideos = await getVideoList();
+		videoList.value = allVideos.filter((video) => video.imei === newIPCam);
+	}
+});
+
+// 如果videoList改變，就重新統計status
+watch(videoList, (newVideoList, oldVideoList) => {
+	console.log('videoList changed');
+	if (newVideoList !== oldVideoList) {
+		// 統計每個狀態的數量
+		statusCounts.value = newVideoList.reduce((counts, video) => {
+			const status = video.status;
+			counts[status] = (counts[status] || 0) + 1;
+			return counts;
+		}, {} as Record<string, number>);
+		console.log(statusCounts.value);
+		// 設定indicator
+		statusList.forEach((status) => {
+			status.statusNumber = statusCounts.value[status.statusName] || 0;
+		});
+	}
+});
 onMounted(async () => {
 	isLoading.value = true;
 	try {
 		let result = await getIPCamList();
 		ipcamList.value = result || [];
 		selectedIPCam.value = ipcamList.value[0] || '';
-		videoList.value = (await getVideoList()) || [];
-		// 統計每個狀態的數量
-		statusCounts.value = videoList.value.reduce((counts, video) => {
-			const status = video.status;
-			counts[status] = (counts[status] || 0) + 1;
-			return counts;
-		}, {} as Record<string, number>);
-
-		// 設定indicator
-		statusList.forEach((status) => {
-			status.statusNumber = statusCounts.value[status.statusName] || 0;
-		});
 	} catch (error) {
 		console.error(error);
 	}
 	isLoading.value = false;
 });
-const refreshVideoList = async () => {
-	videoList.value = (await getVideoList()) || [];
-	// 統計每個狀態的數量
-	statusCounts.value = videoList.value.reduce((counts, video) => {
-		const status = video.status;
-		counts[status] = (counts[status] || 0) + 1;
-		return counts;
-	}, {} as Record<string, number>);
-
-	// 設定indicator
-	statusList.forEach((status) => {
-		status.statusNumber = statusCounts.value[status.statusName] || 0;
-	});
+const refreshVideoList = async (ipcam: string) => {
+	selectedIPCam.value = ipcam;
 };
 // 選擇的狀態
 const selectedStatus = ref('');
@@ -233,11 +237,12 @@ const handleDeleteIPCam = () => {
 	</div>
 	<div class="mt-6 flex flex-col justify-center gap-5">
 		<VideoCard
-			@refresh-video-list="() => refreshVideoList()"
+			@refresh-video-list="(ipcam) => refreshVideoList(ipcam)"
 			@update-video-status="(videoId, status) => updateStatus(videoId, status)"
 			v-for="video in filteredVideoList"
 			:key="video.id"
 			:video="video"
+			:color="statusList.find((statusInfo) => statusInfo.statusName === video.status)?.textColor || 'text-gray-300'"
 		/>
 	</div>
 </template>

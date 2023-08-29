@@ -5,6 +5,7 @@ import { onMounted, ref } from 'vue';
 import { IPCam } from '@/api';
 import * as API from '@/api';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import { NSelect } from 'naive-ui';
 
 // Loading
 const isLoading = ref(false);

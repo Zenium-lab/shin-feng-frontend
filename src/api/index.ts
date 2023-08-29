@@ -128,12 +128,19 @@ export const downloadSnapshotById = async (snapshotId: number) => {
 		.then((blob) => URL.createObjectURL(blob));
 };
 
+
+// 刪除照片
+export const deleteSnapshotById = (snapshotId: number) => {
+	return API.delete<void>(`/snapshots/${snapshotId}`);
+};
 // 下載照片的縮圖
 export const downloadThumbnailById = async (snapshotId: number) => {
 	return API.get<File>(`/snapshots/download/thumbnail/${snapshotId}`, {
 		responseType: 'blob',
 	}).then((response) => response.data);
 };
+
+// 
 
 // 取得特定一部影片
 export const getVideoById = (videoId: number) => {
@@ -222,6 +229,7 @@ export interface VideoInput {
 
 export interface Video {
 	id: number;
+	imei: string;
 	creator_id: number;
 	creator_name: string;
 	created_at: number;

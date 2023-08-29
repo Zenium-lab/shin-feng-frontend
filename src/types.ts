@@ -5,6 +5,7 @@ export interface StatusInfo {
     color: string;
     statusName: Status;
     statusNumber: number;
+    textColor: string;
 }
 
 export interface VideoInfo {

@@ -60,7 +60,12 @@
 						</div>
 					</div>
 					<!-- 製作影片按鈕 -->
-					<button class="rounded-lg bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-800" @click="makeVideo">製作影片</button>
+					<button v-if="inputIsValid" class="rounded-lg bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-800" @click="makeVideo">
+						製作影片
+					</button>
+					<button v-else disabled class="rounded-lg bg-gray-300 px-4 py-2 font-medium text-gray-700" @click="makeVideo">
+						製作影片 (請先選擇欄位)
+					</button>
 				</div>
 			</div>
 		</div>
@@ -82,6 +87,7 @@ const props = defineProps({
 		required: true,
 	},
 });
+const inputIsValid = ref(false);
 
 // 影片資訊
 const thumbnailSrc = ref('縮圖路徑');
@@ -113,6 +119,7 @@ watch([startDate, startTime, endDate, endTime], () => {
 				}
 				API.downloadSnapshotById(res[0].id)
 					.then((base64Img) => {
+						inputIsValid.value = true;
 						thumbnailSrc.value = base64Img;
 						imageLoading.value = false;
 					})
@@ -128,7 +135,7 @@ watch([startDate, startTime, endDate, endTime], () => {
 	}
 });
 
-// TODO: 開始製作影片
+// 開始製作影片
 const makeVideo = () => {
 	if (startDate.value === '' || startTime.value === '' || endDate.value === '' || endTime.value === '') {
 		message.error('請選擇開始時間與結束時間');
@@ -145,6 +152,11 @@ const makeVideo = () => {
 		fps: frameRate.value / frameRatio.value,
 		imei: props.selectedIPCam,
 	});
+	startDate.value = '';
+	startTime.value = '';
+	endDate.value = '';
+	endTime.value = '';
+	inputIsValid.value = false;
 	message.info('影片製作中，請稍後至 #影片瀏覽 頁面查看');
 };
 
