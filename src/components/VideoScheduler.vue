@@ -14,49 +14,86 @@
 			<!-- 右半區域 -->
 		</div>
 		<!-- 表單 -->
-		<form class="mt-10 grid w-full grid-cols-2 flex-col gap-4">
+		<div class="mt-10 grid w-full grid-cols-2 flex-col gap-4">
 			<!-- 選擇啟用與否 -->
-			<div class="flex items-center gap-4">
+			<div class="flex items-center justify-center gap-4">
 				<label for="activate" class="w-1/3 text-center text-lg font-medium text-gray-500">是否啟用</label>
 				<select id="activate" class="form-select" v-model="activate">
 					<option v-for="activate in activates" :key="activate" :value="activate">{{ activate }}</option>
 				</select>
 			</div>
 			<!-- 選擇照片天 -->
-			<div class="flex items-center gap-4">
+			<div class="flex items-center justify-center gap-4">
 				<label for="schedulePeriod" class="w-1/3 text-center text-lg font-medium text-gray-500">照片天數</label>
 				<select :disabled="activate === '停用'" id="schedulePeriod" class="form-select" v-model="schedulePeriod">
 					<option v-for="schedulePeriod in schedulePeriods" :key="schedulePeriod" :value="schedulePeriod">{{ schedulePeriod }}</option>
 				</select>
 			</div>
 			<!-- 選擇儲存時間-->
-			<div class="flex items-center gap-4">
+			<div class="flex items-center justify-center gap-4">
 				<label for="scheduleTiming" class="w-1/3 text-center text-lg font-medium text-gray-500">儲存時間點</label>
 				<select :disabled="activate === '停用'" id="scheduleTiming" class="form-select" v-model="scheduleTiming">
 					<option v-for="scheduleTiming in scheduleTimings" :key="scheduleTiming" :value="scheduleTiming">{{ scheduleTiming }}</option>
 				</select>
 			</div>
 			<!-- 選擇每秒播放張數 -->
-			<div class="flex items-center gap-4">
+			<div class="flex items-center justify-center gap-4">
 				<label for="frameRate" class="w-1/3 text-center text-lg font-medium text-gray-500">每秒播放張數</label>
 				<select :disabled="activate === '停用'" id="frameRate" class="form-select" v-model="frameRate">
 					<option v-for="rate in frameRates" :key="rate" :value="rate">{{ rate }}</option>
 				</select>
 			</div>
 			<!-- 選擇抽取張數比例 -->
-			<div class="flex items-center gap-4">
+			<div class="flex items-center justify-center gap-4">
 				<label for="frameRatio" class="w-1/3 text-center text-lg font-medium text-gray-500">抽取張數比例</label>
 				<select :disabled="activate === '停用'" id="frameRatio" class="form-select" v-model="frameRatio">
 					<option v-for="ratio in frameRatios" :key="ratio" :value="ratio">{{ ratio }}</option>
 				</select>
 			</div>
-		</form>
+			<div class="flex items-center justify-center">
+				<button class="rounded-lg bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-800" @click="showModal = true">儲存</button>
+			</div>
+		</div>
 	</div>
+	<!-- save modal -->
+	<n-modal v-model:show="showModal">
+		<n-card style="width: 600px" title="重大更新確認" :bordered="false" size="huge" role="dialog" aria-modal="true">
+			<template #header-extra> </template>
+			<div class="text-lg font-semibold text-black">確定要儲存此排程？</div>
+			<template #footer>
+				<div class="flex justify-around">
+					<button
+						@click="handleSave"
+						class="text-normal inline-flex items-center justify-center rounded-lg bg-green-300 px-4 py-2 font-normal hover:bg-green-800"
+					>
+						確定
+					</button>
+					<button
+						class="inline-flex items-center justify-center rounded-lg bg-red-200 px-4 py-2 font-normal text-black hover:bg-red-300"
+						@click="showModal = false"
+					>
+						取消
+					</button>
+				</div>
+			</template>
+		</n-card>
+	</n-modal>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { NModal, NCard } from 'naive-ui';
+import { IPCam } from '@/api';
+import { useMessage } from 'naive-ui';
+const message = useMessage();
 
+const props = defineProps({
+	ipcam: {
+		type: Object as () => IPCam,
+		required: true,
+	},
+});
+console.log(props.ipcam);
 // 影片資訊
 const thumbnailSrc = ref('縮圖路徑');
 const imageLoading = ref(true);
@@ -74,6 +111,13 @@ const frameRates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 1
 const frameRatios = [1, 2, 4, 8, 16, 32];
 const schedulePeriods = ['1周', '2周'];
 const scheduleTimings = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
+
+// 儲存按鈕
+const showModal = ref(false);
+const handleSave = () => {
+	message.success('儲存成功');
+	showModal.value = false;
+};
 </script>
 
 <style>

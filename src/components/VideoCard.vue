@@ -180,7 +180,6 @@ if (props.video.status === '處理中') {
 		};
 		websocket.onmessage = (event) => {
 			try {
-				console.log(event.data);
 				const progressMessage: Progress = JSON.parse(event.data);
 				if (progressMessage.videoId === props.video.id) {
 					// 更新進度
@@ -200,8 +199,7 @@ if (props.video.status === '處理中') {
 				console.error('websocket message parse error', err);
 			}
 		};
-		websocket.onclose = (event) => {
-			console.log(event);
+		websocket.onclose = (_) => {
 			emit('refreshVideoList', props.video.imei);
 			console.log('websocket disconnected');
 		};
