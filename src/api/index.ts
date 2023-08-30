@@ -1,6 +1,6 @@
-import { useAuthStore } from '@/stores/auth';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
 const API = axios.create({
@@ -9,6 +9,7 @@ const API = axios.create({
 		'Content-Type': 'application/json',
 	},
 });
+
 // 攔截器加入 Auth token
 API.interceptors.request.use((config) => {
 	const authStore = useAuthStore();
@@ -83,6 +84,11 @@ export const createIPCam = (imei: IPCam): Promise<void> => {
 };
 // 刪除 IPCam
 export const deleteIPCam = (imei: IPCam): Promise<void> => {
+const authStore = useAuthStore();
+
+	if (authStore.userRole === '檢視者'){
+		return Promise.reject('權限不足')
+	}
 	return API.delete(`/ipcams/${imei}`);
 };
 // 獲取指定時間段內的截圖列表
@@ -98,6 +104,10 @@ export const listSnapshotsInRange = async (imei: string, startTime: number, endT
 
 // 上傳一張照片
 export const createSnapshot = (ipcamImei: string, image: File, createdAt?: number): Promise<void> => {
+	const authStore = useAuthStore();
+	if (authStore.userRole === '檢視者'){
+		return Promise.reject('權限不足')
+	}
 	const formData = new FormData();
 	formData.append('ipcam_imei', ipcamImei);
 	if (createdAt) {
@@ -131,6 +141,11 @@ export const downloadSnapshotById = async (snapshotId: number) => {
 
 // 刪除照片
 export const deleteSnapshotById = (snapshotId: number) => {
+const authStore = useAuthStore();
+
+	if (authStore.userRole === '檢視者'){
+		return Promise.reject('權限不足')
+	}
 	return API.delete<void>(`/snapshots/${snapshotId}`);
 };
 // 下載照片的縮圖
@@ -161,16 +176,28 @@ export const getAllVideos = () => {
 
 // 請求建立影片
 export const createVideo = (videoInput: VideoInput) => {
+	const authStore = useAuthStore();
+	if (authStore.userRole === '檢視者'){
+		return Promise.reject('權限不足')
+	}
 	return API.post<void>('/videos', videoInput);
 };
 
 // 刪除影片
 export const deleteVideo = (videoId: number) => {
+	const authStore = useAuthStore();
+	if (authStore.userRole === '檢視者'){
+		return Promise.reject('權限不足')
+	}
 	return API.delete<void>(`/videos/${videoId}`);
 };
 
 // 取消製作中的影片
 export const cancelCreateVideo = (videoId: number) => {
+	const authStore = useAuthStore();
+	if (authStore.userRole === '檢視者'){
+		return Promise.reject('權限不足')
+	}
 	return API.delete<void>(`/videos/cancel/${videoId}`);
 };
 

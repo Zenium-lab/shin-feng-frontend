@@ -66,5 +66,5 @@ onMounted(async () => {
 	</div>
 
 	<!-- 影片製作 -->
-	<VideoScheduler :selected-i-p-cam="selectedIPCam!"></VideoScheduler>
+	<VideoScheduler :ipcam="selectedIPCam!"></VideoScheduler>
 </template>

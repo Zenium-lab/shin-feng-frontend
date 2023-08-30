@@ -53,13 +53,35 @@
 				<button class="h-12 w-12 rounded-lg p-2 hover:bg-gray-200" @click="handleDownload" :disabled="!selectedIdx">
 					<img src="svgs/download.svg" alt="Account" class="h-full w-full" />
 				</button>
-				<button class="h-12 w-12 rounded-lg p-3 hover:bg-gray-200" @click="handleDelete" :disabled="!selectedIdx">
+				<button class="h-12 w-12 rounded-lg p-3 hover:bg-gray-200" @click="showModal = true" :disabled="!selectedIdx">
 					<img src="svgs/trashcan.svg" alt="Account" class="h-full w-full" />
 				</button>
 			</div>
 		</div>
 	</div>
-
+	<!-- delete modal -->
+	<n-modal v-model:show="showModal">
+		<n-card style="width: 600px" title="重大更新確認" :bordered="false" size="huge" role="dialog" aria-modal="true">
+			<template #header-extra> </template>
+			<div class="text-lg font-semibold text-black">確定要刪除照片嗎？</div>
+			<template #footer>
+				<div class="flex justify-around">
+					<button
+						@click="handleDelete"
+						class="py-2font-normal text-ㄏㄜ inline-flex items-center justify-center rounded-lg bg-green-300 px-4 hover:bg-green-800"
+					>
+						確定
+					</button>
+					<button
+						class="inline-flex items-center justify-center rounded-lg bg-red-200 px-4 py-2 font-normal text-black hover:bg-red-300"
+						@click="showModal = false"
+					>
+						取消
+					</button>
+				</div>
+			</template>
+		</n-card>
+	</n-modal>
 	<!-- 選擇開始日期、時間 -->
 	<div class="mx-auto mt-4 max-w-3xl">
 		<input
@@ -79,14 +101,15 @@ import TitleSection from '@/components/TitleSection.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { getStartEndOfDate, timestampToTime } from '@/utils/date';
 import * as API from '@/api';
-import { useMessage, NSelect } from 'naive-ui';
+import { useMessage, NSelect, NModal, NCard } from 'naive-ui';
+
 const message = useMessage();
 const isLoading = ref(false);
 const selectedIPCam = ref<API.IPCam>();
 const selectDate = ref('');
 const selectedIdx = ref(1);
 const ipcamList = ref<API.IPCam[]>([]);
-
+const showModal = ref(false);
 onMounted(() => {
 	API.listIPCams().then((res) => {
 		ipcamList.value = res.data || [];
@@ -148,12 +171,12 @@ const handleDelete = () => {
 		message.error('尚無資料');
 		return;
 	}
-	snapshots.value.splice(selectedIdx.value - 1, 1);
+
 	API.deleteSnapshotById(snapshots.value[selectedIdx.value - 1].id)
 		.then(() => {
 			message.success('刪除成功');
-			// snapshots.value.splice(selectedIdx.value - 1, 1);
-			selectedIdx.value = 1;
+			snapshots.value.splice(selectedIdx.value - 1, 1);
+			showModal.value = false;
 		})
 		.catch((err) => {
 			message.error('刪除失敗');
