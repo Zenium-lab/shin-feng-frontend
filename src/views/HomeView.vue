@@ -92,12 +92,15 @@ onMounted(async () => {
 	}
 	isLoading.value = false;
 });
+const refreshed = ref(false);
 const refreshVideoList = async (ipcam: string) => {
 	message.info('更新中...');
+	refreshed.value = false;
 	setTimeout(async () => {
 		const allVideos = (await getVideoList()) || [];
 		videoList.value = allVideos.filter((video) => video.imei === ipcam);
 		message.success('更新成功');
+		refreshed.value = true;
 	}, 2000);
 };
 // 選擇的狀態
@@ -242,6 +245,7 @@ const handleDeleteIPCam = () => {
 				@refresh-video-list="(ipcam) => refreshVideoList(ipcam)"
 				@update-video-status="(videoId, status) => updateStatus(videoId, status)"
 				v-for="video in filteredVideoList"
+				:refreshed="refreshed"
 				:key="video.id"
 				:video="video"
 				:color="statusList.find((statusInfo) => statusInfo.statusName === video.status)?.textColor || 'text-gray-300'"
