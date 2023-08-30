@@ -71,7 +71,6 @@ onMounted(async () => {
 		startTime.value = videoDetail.startTime;
 		endTime.value = videoDetail.endTime;
 		videoUrl.value = getVideoSrc();
-		console.log(videoUrl.value);
 	} catch (error) {
 		console.error(error);
 	}

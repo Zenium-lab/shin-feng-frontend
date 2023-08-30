@@ -61,16 +61,13 @@ const getVideoList = async () => {
 };
 
 // 如果selectedIPCam改變，就重新取得videoList
-watch(selectedIPCam, async (newIPCam, oldIPCam) => {
-	if (newIPCam !== oldIPCam) {
-		const allVideos = await getVideoList();
-		videoList.value = allVideos.filter((video) => video.imei === newIPCam);
-	}
+watch(selectedIPCam, async (newIPCam, _) => {
+	const allVideos = await getVideoList();
+	videoList.value = allVideos.filter((video) => video.imei === newIPCam);
 });
 
 // 如果videoList改變，就重新統計status
 watch(videoList, (newVideoList, oldVideoList) => {
-	console.log('videoList changed');
 	if (newVideoList !== oldVideoList) {
 		// 統計每個狀態的數量
 		statusCounts.value = newVideoList.reduce((counts, video) => {
@@ -78,7 +75,6 @@ watch(videoList, (newVideoList, oldVideoList) => {
 			counts[status] = (counts[status] || 0) + 1;
 			return counts;
 		}, {} as Record<string, number>);
-		console.log(statusCounts.value);
 		// 設定indicator
 		statusList.forEach((status) => {
 			status.statusNumber = statusCounts.value[status.statusName] || 0;
@@ -97,7 +93,12 @@ onMounted(async () => {
 	isLoading.value = false;
 });
 const refreshVideoList = async (ipcam: string) => {
-	selectedIPCam.value = ipcam;
+	message.info('更新中...');
+	setTimeout(async () => {
+		const allVideos = (await getVideoList()) || [];
+		videoList.value = allVideos.filter((video) => video.imei === ipcam);
+		message.success('更新成功');
+	}, 2000);
 };
 // 選擇的狀態
 const selectedStatus = ref('');
@@ -236,13 +237,26 @@ const handleDeleteIPCam = () => {
 		/>
 	</div>
 	<div class="mt-6 flex flex-col justify-center gap-5">
-		<VideoCard
-			@refresh-video-list="(ipcam) => refreshVideoList(ipcam)"
-			@update-video-status="(videoId, status) => updateStatus(videoId, status)"
-			v-for="video in filteredVideoList"
-			:key="video.id"
-			:video="video"
-			:color="statusList.find((statusInfo) => statusInfo.statusName === video.status)?.textColor || 'text-gray-300'"
-		/>
+		<transition-group name="vcard">
+			<VideoCard
+				@refresh-video-list="(ipcam) => refreshVideoList(ipcam)"
+				@update-video-status="(videoId, status) => updateStatus(videoId, status)"
+				v-for="video in filteredVideoList"
+				:key="video.id"
+				:video="video"
+				:color="statusList.find((statusInfo) => statusInfo.statusName === video.status)?.textColor || 'text-gray-300'"
+			/>
+		</transition-group>
 	</div>
 </template>
+<style scoped>
+.vcard-enter-active,
+.vcard-leave-active {
+	transition: all 0.3s ease;
+}
+.vcard-enter,
+.vcard-leave-to {
+	opacity: 0;
+	transform: translateY(30px);
+}
+</style>
