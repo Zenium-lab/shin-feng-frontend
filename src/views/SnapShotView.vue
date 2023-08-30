@@ -41,8 +41,10 @@
 	<!-- 圖片 -->
 	<div class="mx-auto mt-8 max-w-3xl overflow-hidden rounded-lg bg-white shadow-lg">
 		<a v-if="snapshots.length > 0" :href="snapshots[selectedIdx - 1].path" target="_blank">
-			<img class="h-96 w-full object-cover" :src="snapshots[selectedIdx - 1].path" alt="Image" />
+			<img class="h-96 w-full object-cover" :src="snapshots[selectedIdx - 1].path" alt="縮時截圖載入中" />
 		</a>
+		<n-spin v-else :size="20" />
+
 		<div v-else class="h-96 w-full animate-pulse bg-slate-200"></div>
 		<div class="flex items-center justify-between p-4">
 			<div class="flex flex-col">
@@ -101,13 +103,14 @@ import TitleSection from '@/components/TitleSection.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { getStartEndOfDate, timestampToTime } from '@/utils/date';
 import * as API from '@/api';
-import { useMessage, NSelect, NModal, NCard } from 'naive-ui';
+import { useMessage, NSelect, NModal, NCard, NSpin } from 'naive-ui';
 
 const message = useMessage();
 const isLoading = ref(false);
 const selectedIPCam = ref<API.IPCam>();
 const selectDate = ref('');
 const selectedIdx = ref(1);
+
 const ipcamList = ref<API.IPCam[]>([]);
 const showModal = ref(false);
 onMounted(() => {
@@ -138,17 +141,26 @@ const handleDate = () => {
 				return;
 			} else {
 				snapshots.value = res;
-
-				snapshots.value.forEach((snapshot) => {
-					API.downloadSnapshotById(snapshot.id)
-						.then((base64Img) => {
-							snapshot.path = base64Img;
-						})
-						.catch((err) => {
-							console.error(err);
-							message.error('尚無資料');
-						});
-				});
+				// 先下載第一張
+				API.downloadSnapshotById(snapshots.value[0].id)
+					.then((base64Img) => {
+						snapshots.value[0].path = base64Img;
+						// 下載其他的
+						for (let i = 1; i < snapshots.value.length; i++) {
+							API.downloadSnapshotById(snapshots.value[i].id)
+								.then((base64Img) => {
+									snapshots.value[i].path = base64Img;
+								})
+								.catch((err) => {
+									console.error(err);
+									message.error('尚無資料');
+								});
+						}
+					})
+					.catch((err) => {
+						console.error(err);
+						message.error('尚無資料');
+					});
 			}
 		})
 		.catch((err) => {

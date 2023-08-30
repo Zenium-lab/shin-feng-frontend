@@ -20,8 +20,7 @@ onMounted(() => {
 });
 const createUser = () => {
 	API.createUser(userForm)
-		.then((res) => {
-			console.log(res);
+		.then((_) => {
 			showModal.value = false;
 			users.value.push({
 				name: userForm.name,
@@ -38,7 +37,6 @@ const createUser = () => {
 const deleteUser = (userId: number) => {
 	API.deleteUser(userId)
 		.then(() => {
-			console.log('delete success');
 			users.value = users.value.filter((user) => user.id !== userId);
 			message.success('刪除成功');
 		})
