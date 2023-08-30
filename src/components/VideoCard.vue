@@ -103,8 +103,10 @@
 		</div>
 		<!-- delete icon button -->
 		<button class="absolute right-0 top-0 mr-6 rounded-lg p-2 hover:animate-bounce hover:bg-red-200" @click="showModal = true">
-			<img src="svgs/trash.svg" alt="圖標" class="h-3 w-3" />
+			<IconSpinner v-if="deleting && !refreshed" class="h-5 w-5 animate-spin text-red-500"></IconSpinner>
+			<img v-else src="svgs/trash.svg" alt="圖標" class="h-3 w-3" />
 		</button>
+
 		<!-- delete modal -->
 		<n-modal v-model:show="showModal">
 			<n-card style="width: 600px" title="重大更新確認" :bordered="false" size="huge" role="dialog" aria-modal="true">
@@ -132,11 +134,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { NSpin, useMessage, NModal, NCard } from 'naive-ui';
 import * as API from '@/api';
 import type { Video, Progress } from '@/api';
 import { timestampToTime } from '@/utils/date';
+import IconSpinner from '@/components/icons/IconSpinner.vue';
 const emit = defineEmits(['updateVideoStatus', 'refreshVideoList']);
 const showModal = ref(false);
 const message = useMessage();
@@ -149,6 +152,16 @@ const props = defineProps({
 		type: String,
 		default: 'text-gray',
 	},
+	refreshed: {
+		type: Boolean,
+		default: true,
+	},
+});
+const deleting = ref(false);
+computed(() => {
+	if (props.refreshed) {
+		deleting.value = false;
+	}
 });
 const progress: Progress = reactive({
 	progress: 0,
@@ -237,8 +250,10 @@ const getThumbnailById = async (snapshotId: number): Promise<string> => {
 	}
 };
 // 刪除影片
+
 const handleDeleteVideo = async () => {
 	try {
+		deleting.value = true;
 		await API.deleteVideo(props.video.id);
 		showModal.value = false;
 		message.success('刪除成功');
@@ -247,6 +262,7 @@ const handleDeleteVideo = async () => {
 		console.error(error);
 		emit('refreshVideoList', props.video.imei);
 		message.error('刪除失敗');
+		deleting.value = false;
 	}
 };
 const handleCancelCreateVideo = async () => {
