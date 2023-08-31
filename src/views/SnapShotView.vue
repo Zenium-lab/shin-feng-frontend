@@ -56,10 +56,10 @@
 				<p class="text-gray-500">{{ snapshots.length > 0 ? snapshots[selectedIdx].ipcam_imei : 'no data' }}</p>
 			</div>
 			<div class="flex items-center justify-center gap-4">
-				<button class="h-12 w-12 rounded-lg p-2 hover:bg-gray-200" @click="handleDownload" :disabled="!selectedIdx">
+				<button class="h-12 w-12 rounded-lg p-2 hover:bg-gray-200" @click="handleDownload">
 					<img src="svgs/download.svg" alt="Account" class="h-full w-full" />
 				</button>
-				<button class="h-12 w-12 rounded-lg p-3 hover:bg-gray-200" @click="showModal = true" :disabled="!selectedIdx">
+				<button class="h-12 w-12 rounded-lg p-3 hover:bg-gray-200" @click="showModal = true">
 					<img src="svgs/trashcan.svg" alt="Account" class="h-full w-full" />
 				</button>
 			</div>
