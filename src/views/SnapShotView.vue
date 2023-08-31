@@ -40,16 +40,16 @@
 	</div>
 	<!-- 圖片 -->
 	<div class="mx-auto mt-8 max-w-3xl overflow-hidden rounded-lg bg-white shadow-lg">
-		<a v-if="snapshots.length > 0" :href="snapshots[selectedIdx - 1].path" target="_blank">
-			<img class="h-96 w-full object-cover" :src="snapshots[selectedIdx - 1].path" alt="縮時截圖載入中" />
+		<a v-if="snapshots.length > 0" :href="snapshots[selectedIdx].path" target="_blank">
+			<img class="h-96 w-full object-cover" :src="snapshots[selectedIdx].path" alt="縮時截圖載入中" />
 		</a>
 		<n-spin v-else :size="20" />
 
 		<div v-else class="h-96 w-full animate-pulse bg-slate-200"></div>
 		<div class="flex items-center justify-between p-4">
 			<div class="flex flex-col">
-				<h2 class="mb-2 text-xl font-semibold">{{ snapshots.length > 0 ? timestampToTime(snapshots[selectedIdx - 1].created_at) : '尚無資料' }}</h2>
-				<p class="text-gray-500">{{ snapshots.length > 0 ? snapshots[selectedIdx - 1].ipcam_imei : 'no data' }}</p>
+				<h2 class="mb-2 text-xl font-semibold">{{ snapshots.length > 0 ? timestampToTime(snapshots[selectedIdx].created_at) : '尚無資料' }}</h2>
+				<p class="text-gray-500">{{ snapshots.length > 0 ? snapshots[selectedIdx].ipcam_imei : 'no data' }}</p>
 			</div>
 			<div class="flex items-center justify-center gap-4">
 				<button class="h-12 w-12 rounded-lg p-2 hover:bg-gray-200" @click="handleDownload" :disabled="!selectedIdx">
@@ -70,7 +70,7 @@
 				<div class="flex justify-around">
 					<button
 						@click="handleDelete"
-						class="py-2font-normal text-ㄏㄜ inline-flex items-center justify-center rounded-lg bg-green-300 px-4 hover:bg-green-800"
+						class="inline-flex items-center justify-center rounded-lg bg-green-300 px-4 py-2 font-normal text-black hover:bg-green-800"
 					>
 						確定
 					</button>
@@ -90,8 +90,8 @@
 			v-model="selectedIdx"
 			id="steps-range"
 			type="range"
-			min="1"
-			:max="snapshots.length"
+			min="0"
+			:max="snapshots.length - 1"
 			step="1"
 			class="h-4 w-full cursor-pointer rounded-sm"
 		/>
@@ -109,7 +109,7 @@ const message = useMessage();
 const isLoading = ref(false);
 const selectedIPCam = ref<API.IPCam>();
 const selectDate = ref('');
-const selectedIdx = ref(1);
+const selectedIdx = ref(0);
 
 const ipcamList = ref<API.IPCam[]>([]);
 const showModal = ref(false);
@@ -125,7 +125,7 @@ watch(selectedIPCam, async (newIPCam, oldIPCam) => {
 	if (newIPCam !== oldIPCam) {
 		// 清空snapshots, selectedIdx, selectDate
 		snapshots.value = [];
-		selectedIdx.value = 1;
+		selectedIdx.value = 0;
 		selectDate.value = '';
 	}
 });
@@ -174,8 +174,8 @@ const handleDownload = () => {
 		message.error('尚無資料');
 		return;
 	}
-	a.href = snapshots.value[selectedIdx.value - 1].path;
-	a.download = `${timestampToTime(snapshots.value[selectedIdx.value - 1].created_at)}.png`;
+	a.href = snapshots.value[selectedIdx.value].path;
+	a.download = `${timestampToTime(snapshots.value[selectedIdx.value].created_at)}.png`;
 	a.click();
 };
 const handleDelete = () => {
@@ -184,10 +184,14 @@ const handleDelete = () => {
 		return;
 	}
 
-	API.deleteSnapshotById(snapshots.value[selectedIdx.value - 1].id)
+	API.deleteSnapshotById(snapshots.value[selectedIdx.value].id)
 		.then(() => {
 			message.success('刪除成功');
-			snapshots.value.splice(selectedIdx.value - 1, 1);
+			snapshots.value.splice(selectedIdx.value, 1);
+			// 更新selectedIdx
+			if (selectedIdx.value === snapshots.value.length) {
+				selectedIdx.value = snapshots.value.length - 1;
+			}
 			showModal.value = false;
 		})
 		.catch((err) => {

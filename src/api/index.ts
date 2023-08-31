@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useRouter } from 'vue-router';
+import { OnlyAdminCanDelete } from './permission';
 import { useAuthStore } from '@/stores/auth';
-
 const router = useRouter();
 const API = axios.create({
 	baseURL: import.meta.env.VITE_BASE_URL + '/api/v1', // 請根據實際情況修改基礎 URL
@@ -9,7 +9,6 @@ const API = axios.create({
 		'Content-Type': 'application/json',
 	},
 });
-
 // 攔截器加入 Auth token
 API.interceptors.request.use((config) => {
 	const authStore = useAuthStore();
@@ -68,6 +67,9 @@ export const createUser = (userData: User) => {
 
 // 刪除使用者
 export const deleteUser = (id: number) => {
+	if (OnlyAdminCanDelete()) {
+		return Promise.reject('權限不足');
+	}
 	return API.delete(`/users/${id}`);
 };
 // 獲取 IPCam 列表
@@ -83,10 +85,8 @@ export const createIPCam = (imei: IPCam): Promise<void> => {
 };
 // 刪除 IPCam
 export const deleteIPCam = (imei: IPCam): Promise<void> => {
-const authStore = useAuthStore();
-
-	if (authStore.userRole === '檢視者'){
-		return Promise.reject('權限不足')
+	if (OnlyAdminCanDelete()) {
+		return Promise.reject('權限不足');
 	}
 	return API.delete(`/ipcams/${imei}`);
 };
@@ -103,10 +103,6 @@ export const listSnapshotsInRange = async (imei: string, startTime: number, endT
 
 // 上傳一張照片
 export const createSnapshot = (ipcamImei: string, image: File, createdAt?: number): Promise<void> => {
-	const authStore = useAuthStore();
-	if (authStore.userRole === '檢視者'){
-		return Promise.reject('權限不足')
-	}
 	const formData = new FormData();
 	formData.append('ipcam_imei', ipcamImei);
 	if (createdAt) {
@@ -137,13 +133,10 @@ export const downloadSnapshotById = async (snapshotId: number) => {
 		.then((blob) => URL.createObjectURL(blob));
 };
 
-
 // 刪除照片
 export const deleteSnapshotById = (snapshotId: number) => {
-const authStore = useAuthStore();
-
-	if (authStore.userRole === '檢視者'){
-		return Promise.reject('權限不足')
+	if (OnlyAdminCanDelete()) {
+		return Promise.reject('權限不足');
 	}
 	return API.delete<void>(`/snapshots/${snapshotId}`);
 };
@@ -154,7 +147,7 @@ export const downloadThumbnailById = async (snapshotId: number) => {
 	}).then((response) => response.data);
 };
 
-// 
+//
 
 // 取得特定一部影片
 export const getVideoById = (videoId: number) => {
@@ -175,41 +168,30 @@ export const getAllVideos = () => {
 
 // 請求建立影片
 export const createVideo = (videoInput: VideoInput) => {
-	const authStore = useAuthStore();
-	if (authStore.userRole === '檢視者'){
-		return Promise.reject('權限不足')
-	}
 	return API.post<void>('/videos', videoInput);
 };
 
 // 刪除影片
 export const deleteVideo = (videoId: number) => {
-	const authStore = useAuthStore();
-	if (authStore.userRole === '檢視者'){
-		return Promise.reject('權限不足')
+	if (OnlyAdminCanDelete()) {
+		return Promise.reject('權限不足');
 	}
 	return API.delete<void>(`/videos/${videoId}`);
 };
 
 // 取消製作中的影片
 export const cancelCreateVideo = (videoId: number) => {
-	const authStore = useAuthStore();
-	if (authStore.userRole === '檢視者'){
-		return Promise.reject('權限不足')
-	}
 	return API.delete<void>(`/videos/cancel/${videoId}`);
 };
 
-
-
 // 建立 websocket 連線取得製作進度
 export const getVideoProgress = (videoId: number): WebSocket => {
-	let origin =  import.meta.env.VITE_BASE_URL
+	let origin = import.meta.env.VITE_BASE_URL;
 	if (origin.startsWith('https:')) {
-        origin = origin.replace('https:', 'wss:');
-    } else if (origin.startsWith('http:')) {
-        origin = origin.replace('http:', 'ws:');
-    }
+		origin = origin.replace('https:', 'wss:');
+	} else if (origin.startsWith('http:')) {
+		origin = origin.replace('http:', 'ws:');
+	}
 
 	const url = `${origin}/api/v1/videos/progress?videoId=${videoId}`;
 	console.log(url);
@@ -220,7 +202,7 @@ export const getVideoProgress = (videoId: number): WebSocket => {
 export interface Progress {
 	videoId: number;
 	progress: number;
-	type: "下載中" |  "製作中"
+	type: '下載中' | '製作中';
 	elapsed: number;
 	remain: number;
 }
@@ -267,11 +249,11 @@ export interface Video {
 	first_snapshot_id: number;
 	video_path: string;
 }
-
+export type UserRole = '管理員' | '編輯者' | '檢視者';
 export interface UserMeta {
 	id?: number;
 	name: string;
-	role: '管理員' | '編輯者' | '檢視者';
+	role: UserRole;
 	account: string;
 	password?: string;
 }

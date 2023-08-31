@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { UserMeta } from '@/api';
+import { UserMeta, UserRole } from '@/api';
 export const useAuthStore = defineStore(
 	'auth',
 	() => {
 		const userId = ref<number>();
 		const userName = ref<string>();
-		const userRole = ref<string>();
+		const userRole = ref<UserRole>();
 		const userAccount = ref<string>();
 		const token = ref<string>();
 
