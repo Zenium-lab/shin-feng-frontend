@@ -201,23 +201,21 @@ if (props.video.status === '處理中') {
 					progress.remain = progressMessage.remain;
 				}
 				if (progressMessage.progress === 100 && progressMessage.type === '下載中') {
-					emit('refreshVideoList', props.video.imei);
 				}
 				if (progressMessage.progress === 100 && progressMessage.type === '製作中') {
-					emit('refreshVideoList', props.video.imei);
 					websocket.close();
 				}
 			} catch (err: unknown) {
-				emit('refreshVideoList', props.video.imei);
+				emit('refreshVideoList', props.video.imei, 2000);
 				console.error('websocket message parse error', err);
 			}
 		};
 		websocket.onclose = (_) => {
-			emit('refreshVideoList', props.video.imei);
+			emit('refreshVideoList', props.video.imei, 2000);
 			console.log('websocket disconnected');
 		};
 		websocket.onerror = (event) => {
-			emit('refreshVideoList', props.video.imei);
+			emit('refreshVideoList', props.video.imei, 2000);
 			console.error(event);
 		};
 	} catch (err: unknown) {
