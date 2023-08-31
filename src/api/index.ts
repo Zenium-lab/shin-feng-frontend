@@ -67,7 +67,7 @@ export const createUser = (userData: User) => {
 
 // 刪除使用者
 export const deleteUser = (id: number) => {
-	if (OnlyAdminCanDelete()) {
+	if (!OnlyAdminCanDelete()) {
 		return Promise.reject('權限不足');
 	}
 	return API.delete(`/users/${id}`);
@@ -85,7 +85,7 @@ export const createIPCam = (imei: IPCam): Promise<void> => {
 };
 // 刪除 IPCam
 export const deleteIPCam = (imei: IPCam): Promise<void> => {
-	if (OnlyAdminCanDelete()) {
+	if (!OnlyAdminCanDelete()) {
 		return Promise.reject('權限不足');
 	}
 	return API.delete(`/ipcams/${imei}`);
@@ -135,7 +135,7 @@ export const downloadSnapshotById = async (snapshotId: number) => {
 
 // 刪除照片
 export const deleteSnapshotById = (snapshotId: number) => {
-	if (OnlyAdminCanDelete()) {
+	if (!OnlyAdminCanDelete()) {
 		return Promise.reject('權限不足');
 	}
 	return API.delete<void>(`/snapshots/${snapshotId}`);
@@ -173,7 +173,7 @@ export const createVideo = (videoInput: VideoInput) => {
 
 // 刪除影片
 export const deleteVideo = (videoId: number) => {
-	if (OnlyAdminCanDelete()) {
+	if (!OnlyAdminCanDelete()) {
 		return Promise.reject('權限不足');
 	}
 	return API.delete<void>(`/videos/${videoId}`);
