@@ -40,12 +40,16 @@
 	</div>
 	<!-- 圖片 -->
 	<div class="mx-auto mt-8 max-w-3xl overflow-hidden rounded-lg bg-white shadow-lg">
-		<a v-if="snapshots.length > 0" :href="snapshots[selectedIdx].path" target="_blank">
+		<div v-if="downloadProgress !== 100 && downloadProgress !== 0" class="inline-flex h-96 w-full animate-pulse items-center justify-center">
+			<n-progress type="circle" :percentage="downloadProgress" :offset-degree="180">
+				<span class="text-lg" style="text-align: center">{{ downloadNum }}/{{ totalNum }}</span>
+			</n-progress>
+		</div>
+		<a v-else-if="snapshots.length > 0" :href="snapshots[selectedIdx].path" target="_blank">
 			<img class="h-96 w-full object-cover" :src="snapshots[selectedIdx].path" alt="縮時截圖載入中" />
 		</a>
-		<n-spin v-else :size="20" />
-
 		<div v-else class="h-96 w-full animate-pulse bg-slate-200"></div>
+
 		<div class="flex items-center justify-between p-4">
 			<div class="flex flex-col">
 				<h2 class="mb-2 text-xl font-semibold">{{ snapshots.length > 0 ? timestampToTime(snapshots[selectedIdx].created_at) : '尚無資料' }}</h2>
@@ -87,7 +91,7 @@
 	<!-- 選擇開始日期、時間 -->
 	<div class="mx-auto mt-4 max-w-3xl">
 		<input
-			v-model="selectedIdx"
+			v-model.number="selectedIdx"
 			id="steps-range"
 			type="range"
 			min="0"
@@ -98,25 +102,38 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import TitleSection from '@/components/TitleSection.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { getStartEndOfDate, timestampToTime } from '@/utils/date';
 import * as API from '@/api';
-import { useMessage, NSelect, NModal, NCard, NSpin } from 'naive-ui';
-
+import { useMessage, NSelect, NModal, NCard, NProgress } from 'naive-ui';
+import { useIpcamStore } from '@/stores/ipcam';
+import { IPCam } from '@/api';
+const ipcamStore = useIpcamStore();
 const message = useMessage();
 const isLoading = ref(false);
-const selectedIPCam = ref<API.IPCam>();
 const selectDate = ref('');
 const selectedIdx = ref(0);
 
 const ipcamList = ref<API.IPCam[]>([]);
 const showModal = ref(false);
+
+const selectedIPCam = computed({
+	get(): IPCam {
+		return ipcamStore.ipcam || '';
+	},
+	set(newIPCam: IPCam) {
+		ipcamStore.setIpcam(newIPCam);
+	},
+});
+
 onMounted(() => {
 	API.listIPCams().then((res) => {
 		ipcamList.value = res.data || [];
-		selectedIPCam.value = ipcamList.value[0] || '';
+		if (selectedIPCam.value === '' && ipcamList.value.length > 0) {
+			selectedIPCam.value = ipcamList.value[0];
+		}
 	});
 });
 
@@ -130,38 +147,47 @@ watch(selectedIPCam, async (newIPCam, oldIPCam) => {
 	}
 });
 
+const downloadProgress = ref(0);
+const downloadNum = ref(0);
+const totalNum = ref(0);
 const snapshots = ref<API.Snapshot[]>([]);
 const handleDate = () => {
 	const { start, end } = getStartEndOfDate(selectDate.value);
+	if (start > new Date()) {
+		message.error('開始時間不可大於今天');
+		selectDate.value = '';
+		return;
+	}
+
+	downloadNum.value = 0;
 
 	API.listSnapshotsInRange(selectedIPCam.value!, start.getTime() / 1000, end.getTime() / 1000)
 		.then((res) => {
-			if (!res) {
+			if (!res || res.length === 0) {
 				message.error('尚無資料');
 				return;
-			} else {
-				snapshots.value = res;
-				// 先下載第一張
-				API.downloadSnapshotById(snapshots.value[0].id)
+			}
+			totalNum.value = res.length;
+			const updateProgress = () => {
+				downloadNum.value++;
+				downloadProgress.value = (downloadNum.value / totalNum.value) * 100;
+			};
+
+			const downloadPromises = res.map((snapshot) => {
+				return API.downloadSnapshotById(snapshot.id)
 					.then((base64Img) => {
-						snapshots.value[0].path = base64Img;
-						// 下載其他的
-						for (let i = 1; i < snapshots.value.length; i++) {
-							API.downloadSnapshotById(snapshots.value[i].id)
-								.then((base64Img) => {
-									snapshots.value[i].path = base64Img;
-								})
-								.catch((err) => {
-									console.error(err);
-									message.error('尚無資料');
-								});
-						}
+						snapshot.path = base64Img;
+						updateProgress(); // 每次下載完成時，更新進度
 					})
 					.catch((err) => {
 						console.error(err);
 						message.error('尚無資料');
 					});
-			}
+			});
+
+			return Promise.all(downloadPromises).then(() => {
+				snapshots.value = res;
+			});
 		})
 		.catch((err) => {
 			message.error('尚無資料');
@@ -187,16 +213,25 @@ const handleDelete = () => {
 	API.deleteSnapshotById(snapshots.value[selectedIdx.value].id)
 		.then(() => {
 			message.success('刪除成功');
+			console.log(selectedIdx.value, snapshots.value.length);
 			snapshots.value.splice(selectedIdx.value, 1);
+			console.log(selectedIdx.value, snapshots.value.length);
 			// 更新selectedIdx
 			if (selectedIdx.value === snapshots.value.length) {
 				selectedIdx.value = snapshots.value.length - 1;
 			}
+			console.log(selectedIdx.value, snapshots.value.length);
+			console.log(typeof selectedIdx.value, typeof snapshots.value.length);
+			console.log(selectedIdx.value === snapshots.value.length);
 			showModal.value = false;
 		})
 		.catch((err) => {
-			message.error('刪除失敗');
-			console.error(err);
+			if (err === '權限不足') {
+				message.error('權限不足');
+			} else {
+				message.error('刪除失敗');
+			}
+			showModal.value = false;
 		});
 };
 </script>

@@ -9,6 +9,8 @@ import { Video } from '@/api';
 import type { IPCam } from '@/api';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { NModal, NCard, useMessage, NSelect } from 'naive-ui';
+import { useIpcamStore } from '@/stores/ipcam';
+
 const statusList: StatusInfo[] = reactive([
 	{ icon: 'svgs/status/done.svg', statusName: '已完成', statusNumber: 0, color: 'bg-emerald-300', textColor: 'text-emerald-400' },
 	{ icon: 'svgs/status/in-progress.svg', statusName: '處理中', statusNumber: 0, color: 'bg-yellow-300', textColor: 'text-yellow-400' },
@@ -18,9 +20,17 @@ const statusList: StatusInfo[] = reactive([
 ]);
 const message = useMessage();
 const ipcamList = ref<IPCam[]>([]);
-const selectedIPCam = ref<IPCam>();
 const statusCounts = ref<Record<string, number>>({});
 const videoList = ref<Video[]>([]);
+const ipcamStore = useIpcamStore();
+const selectedIPCam = computed({
+	get(): IPCam {
+		return ipcamStore.ipcam || '';
+	},
+	set(newIPCam: IPCam) {
+		ipcamStore.setIpcam(newIPCam);
+	},
+});
 
 // Update status
 const updateStatus = (videoId: number, status: Status) => {
@@ -40,8 +50,10 @@ const updateStatus = (videoId: number, status: Status) => {
 		statusCounts.value[status] = statusCounts.value[status] + 1;
 	}
 };
+
 // Loading
 const isLoading = ref(false);
+
 //
 // 取得所有IPcam
 const getIPCamList = async (): Promise<IPCam[]> => {
@@ -57,7 +69,7 @@ const getIPCamList = async (): Promise<IPCam[]> => {
 // 取得所有影片資訊
 const getVideoList = async () => {
 	const res = await API.getAllVideos();
-	return res.data;
+	return res.data || [];
 };
 
 // 如果selectedIPCam改變，就重新取得videoList
@@ -81,30 +93,38 @@ watch(videoList, (newVideoList, oldVideoList) => {
 		});
 	}
 });
+
 onMounted(async () => {
 	isLoading.value = true;
 	try {
 		let result = await getIPCamList();
 		ipcamList.value = result || [];
-		selectedIPCam.value = ipcamList.value[0] || '';
+		if (selectedIPCam.value === '' && ipcamList.value.length > 0) {
+			selectedIPCam.value = ipcamList.value[0];
+		}
+		const allVideos = await getVideoList();
+		videoList.value = allVideos.filter((video) => video.imei === selectedIPCam.value);
 	} catch (error) {
 		console.error(error);
 	}
 	isLoading.value = false;
 });
+
 const refreshed = ref(false);
 const refreshVideoList = async (ipcam: string, interval: number = 0) => {
+	console.log('refreshVideoList', ipcam, interval);
 	refreshed.value = false;
 	isLoading.value = true;
 	if (interval > 0) {
 		setTimeout(async () => {
-			const allVideos = (await getVideoList()) || [];
+			const allVideos = await getVideoList();
 			videoList.value = allVideos.filter((video) => video.imei === ipcam);
 			refreshed.value = true;
+			isLoading.value = false;
 		}, interval);
 		return;
 	}
-	const allVideos = (await getVideoList()) || [];
+	const allVideos = await getVideoList();
 	videoList.value = allVideos.filter((video) => video.imei === ipcam);
 	refreshed.value = true;
 	isLoading.value = false;
@@ -130,7 +150,7 @@ const addIPCam = (imei: string) => {
 		.then(async (_) => {
 			let result = await getIPCamList();
 			ipcamList.value = result || [];
-			selectedIPCam.value = ipcamList.value[0] || '';
+			ipcamStore.setIpcam(imei);
 			ipcamInput.value = '';
 			message.success('新增成功');
 			showModal.value = false;
@@ -148,12 +168,15 @@ const handleDeleteIPCam = () => {
 			.then(async (_) => {
 				let result = await getIPCamList();
 				ipcamList.value = result || [];
-				selectedIPCam.value = ipcamList.value[0] || '';
+				ipcamStore.setIpcam(ipcamList.value[0] || '');
 				message.success('刪除成功');
 			})
 			.catch((err) => {
-				message.error('刪除失敗');
-				console.error(err);
+				if (err === '權限不足') {
+					message.error('權限不足');
+				} else {
+					message.error('刪除失敗');
+				}
 			});
 	}
 };
@@ -248,7 +271,7 @@ const handleDeleteIPCam = () => {
 	<div class="mt-6 flex flex-col justify-center gap-5">
 		<transition-group name="vcard">
 			<VideoCard
-				@refresh-video-list="(ipcam) => refreshVideoList(ipcam)"
+				@refresh-video-list="(ipcam, interval?) => refreshVideoList(ipcam, interval)"
 				@update-video-status="(videoId, status) => updateStatus(videoId, status)"
 				v-for="video in filteredVideoList"
 				:refreshed="refreshed"

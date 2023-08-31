@@ -201,6 +201,7 @@ if (props.video.status === '處理中') {
 					progress.remain = progressMessage.remain;
 				}
 				if (progressMessage.progress === 100 && progressMessage.type === '下載中') {
+					emit('refreshVideoList', props.video.imei, 2000);
 				}
 				if (progressMessage.progress === 100 && progressMessage.type === '製作中') {
 					websocket.close();
@@ -251,9 +252,9 @@ const getThumbnailById = async (snapshotId: number): Promise<string> => {
 
 const handleDeleteVideo = async () => {
 	try {
+		showModal.value = false;
 		deleting.value = true;
 		await API.deleteVideo(props.video.id);
-		showModal.value = false;
 		message.success('刪除成功');
 		emit('refreshVideoList', props.video.imei);
 	} catch (error) {

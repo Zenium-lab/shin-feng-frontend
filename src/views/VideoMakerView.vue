@@ -1,16 +1,26 @@
 <script setup lang="ts">
 import TitleSection from '@/components/TitleSection.vue';
 import VideoMaker from '@/components/VideoMaker.vue';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { IPCam } from '@/api';
 import { NSelect } from 'naive-ui';
 import * as API from '@/api';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import { useIpcamStore } from '@/stores/ipcam';
 // Loading
 const isLoading = ref(false);
 const ipcamList = ref<IPCam[]>([]);
-const selectedIPCam = ref<IPCam>();
-// TODO: 取得所有IPcam
+
+const ipcamStore = useIpcamStore();
+const selectedIPCam = computed({
+	get(): IPCam {
+		return ipcamStore.ipcam || '';
+	},
+	set(newIPCam: IPCam) {
+		ipcamStore.setIpcam(newIPCam);
+	},
+});
+// 取得所有IPcam
 const getIPCamList = async () => {
 	const res = await API.listIPCams();
 	return res.data;
@@ -20,7 +30,9 @@ onMounted(async () => {
 		isLoading.value = true;
 		let result = await getIPCamList();
 		ipcamList.value = result || [];
-		selectedIPCam.value = ipcamList.value[0] || '';
+		if (selectedIPCam.value === '' && ipcamList.value.length > 0) {
+			selectedIPCam.value = ipcamList.value[0];
+		}
 		isLoading.value = false;
 	} catch (error) {
 		isLoading.value = false;
