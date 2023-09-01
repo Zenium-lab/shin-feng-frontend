@@ -201,7 +201,7 @@ if (props.video.status === '處理中') {
 					progress.remain = progressMessage.remain;
 				}
 				if (progressMessage.progress === 100 && progressMessage.type === '下載中') {
-					emit('refreshVideoList', props.video.imei, 2000);
+					emit('refreshVideoList', props.video.imei, 4000);
 				}
 				if (progressMessage.progress === 100 && progressMessage.type === '製作中') {
 					websocket.close();
