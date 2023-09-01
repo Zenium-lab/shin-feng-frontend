@@ -168,7 +168,9 @@ const handleDate = () => {
 	let currentDownloadNum = 0;
 	let currentTotalNum = 0;
 	let currentDownloadProgress = 0;
-
+	downloadNum.value = 0;
+	totalNum.value = 0;
+	downloadProgress.value = 1;
 	API.listSnapshotsInRange(selectedIPCam.value!, start.getTime() / 1000, end.getTime() / 1000)
 		.then((res) => {
 			if (!res || res.length === 0) {
