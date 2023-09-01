@@ -200,6 +200,7 @@ if (props.video.status === '處理中') {
 					progress.elapsed = progressMessage.elapsed;
 					progress.remain = progressMessage.remain;
 				}
+				console.log(progressMessage.progress, progressMessage.type);
 				if (progressMessage.progress === 100 && progressMessage.type === '下載中') {
 					emit('refreshVideoList', props.video.imei, 4000);
 				}

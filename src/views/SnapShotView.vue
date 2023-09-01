@@ -151,6 +151,9 @@ const downloadProgress = ref(0);
 const downloadNum = ref(0);
 const totalNum = ref(0);
 const snapshots = ref<API.Snapshot[]>([]);
+
+let currentRequestId = 0; // 外部變數來跟踪最新的請求ID
+
 const handleDate = () => {
 	const { start, end } = getStartEndOfDate(selectDate.value);
 	if (start > new Date()) {
@@ -159,26 +162,37 @@ const handleDate = () => {
 		return;
 	}
 
-	downloadNum.value = 0;
-	totalNum.value = 0;
-	downloadProgress.value = 0;
+	const thisRequestId = Date.now(); // 生成唯一的請求ID
+	currentRequestId = thisRequestId;
+
+	let currentDownloadNum = 0;
+	let currentTotalNum = 0;
+	let currentDownloadProgress = 0;
+
 	API.listSnapshotsInRange(selectedIPCam.value!, start.getTime() / 1000, end.getTime() / 1000)
 		.then((res) => {
 			if (!res || res.length === 0) {
 				message.error('尚無資料');
 				return;
 			}
-			totalNum.value = res.length;
+			currentTotalNum = res.length;
+
 			const updateProgress = () => {
-				downloadNum.value++;
-				downloadProgress.value = (downloadNum.value / totalNum.value) * 100;
+				currentDownloadNum++;
+				currentDownloadProgress = (currentDownloadNum / currentTotalNum) * 100;
+
+				// 僅當此請求是最新的請求時，才更新ref
+				if (thisRequestId === currentRequestId) {
+					downloadNum.value = currentDownloadNum;
+					downloadProgress.value = currentDownloadProgress;
+				}
 			};
 
 			const downloadPromises = res.map((snapshot) => {
 				return API.downloadSnapshotById(snapshot.id)
 					.then((base64Img) => {
 						snapshot.path = base64Img;
-						updateProgress(); // 每次下載完成時，更新進度
+						updateProgress();
 					})
 					.catch((err) => {
 						console.error(err);
@@ -195,6 +209,7 @@ const handleDate = () => {
 			console.error(err);
 		});
 };
+
 const handleDownload = () => {
 	const a = document.createElement('a');
 	if (snapshots.value.length === 0) {
