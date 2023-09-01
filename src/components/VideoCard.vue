@@ -199,6 +199,7 @@ if (props.video.status === '處理中') {
 					progress.progress = progressMessage.progress;
 					progress.elapsed = progressMessage.elapsed;
 					progress.remain = progressMessage.remain;
+					progress.type = progressMessage.type;
 				}
 				console.log(progressMessage.progress, progressMessage.type);
 				if (progressMessage.progress === 100 && progressMessage.type === '下載中') {
