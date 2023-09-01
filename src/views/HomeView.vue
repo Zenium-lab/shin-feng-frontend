@@ -112,9 +112,8 @@ onMounted(async () => {
 
 const refreshed = ref(false);
 const refreshVideoList = async (ipcam: string, interval: number = 0) => {
-	console.log('refreshVideoList', ipcam, interval);
 	refreshed.value = false;
-	isLoading.value = true;
+	// isLoading.value = true;
 	if (interval > 0) {
 		setTimeout(async () => {
 			const allVideos = await getVideoList();
@@ -127,7 +126,7 @@ const refreshVideoList = async (ipcam: string, interval: number = 0) => {
 	const allVideos = await getVideoList();
 	videoList.value = allVideos.filter((video) => video.imei === ipcam);
 	refreshed.value = true;
-	isLoading.value = false;
+	// isLoading.value = false;
 };
 // 選擇的狀態
 const selectedStatus = ref('');
