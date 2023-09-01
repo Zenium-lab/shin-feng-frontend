@@ -223,8 +223,9 @@ export interface Snapshot {
 	id: number;
 	created_at: number;
 	path: string;
+	image_path?: string;
 	thumbnail_path: string;
-	ipcam_imei: number;
+	imei: number;
 }
 
 export interface VideoInput {
