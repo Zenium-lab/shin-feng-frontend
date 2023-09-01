@@ -168,7 +168,9 @@ const handleDate = () => {
 	let currentDownloadNum = 0;
 	let currentTotalNum = 0;
 	let currentDownloadProgress = 0;
-
+	downloadNum.value = 0;
+	totalNum.value = 0;
+	downloadProgress.value = 1;
 	API.listSnapshotsInRange(selectedIPCam.value!, start.getTime() / 1000, end.getTime() / 1000)
 		.then((res) => {
 			if (!res || res.length === 0) {
@@ -184,6 +186,7 @@ const handleDate = () => {
 				// 僅當此請求是最新的請求時，才更新ref
 				if (thisRequestId === currentRequestId) {
 					downloadNum.value = currentDownloadNum;
+					totalNum.value = currentTotalNum;
 					downloadProgress.value = currentDownloadProgress;
 				}
 			};
