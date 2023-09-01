@@ -42,7 +42,8 @@
 	<div class="mx-auto mt-8 max-w-3xl overflow-hidden rounded-lg bg-white shadow-lg">
 		<div v-if="downloadProgress !== 100 && downloadProgress !== 0" class="inline-flex h-96 w-full animate-pulse items-center justify-center">
 			<n-progress type="circle" :percentage="downloadProgress" :offset-degree="180">
-				<span class="text-lg" style="text-align: center">{{ downloadNum }}/{{ totalNum }}</span>
+				<span v-if="totalNum === 0" class="text-lg" style="text-align: center">{{ downloadNum }}/{{ totalNum }}</span>
+				<span v-else class="text-lg" style="text-align: center">加載中</span>
 			</n-progress>
 		</div>
 		<a v-else-if="snapshots.length > 0" :href="snapshots[selectedIdx].path" target="_blank">
