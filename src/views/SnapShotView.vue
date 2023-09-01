@@ -184,6 +184,7 @@ const handleDate = () => {
 				// 僅當此請求是最新的請求時，才更新ref
 				if (thisRequestId === currentRequestId) {
 					downloadNum.value = currentDownloadNum;
+					totalNum.value = currentTotalNum;
 					downloadProgress.value = currentDownloadProgress;
 				}
 			};
