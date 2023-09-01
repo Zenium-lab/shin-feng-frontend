@@ -203,9 +203,10 @@ if (props.video.status === '處理中') {
 				}
 				console.log(progressMessage.progress, progressMessage.type);
 				if (progressMessage.progress === 100 && progressMessage.type === '下載中') {
-					emit('refreshVideoList', props.video.imei, 4000);
+					emit('refreshVideoList', props.video.imei, 2000);
 				}
 				if (progressMessage.progress === 100 && progressMessage.type === '製作中') {
+					emit('refreshVideoList', props.video.imei, 2000);
 					websocket.close();
 				}
 			} catch (err: unknown) {
