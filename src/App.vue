@@ -13,6 +13,7 @@ const navigations = [
 	{ name: '權限管理', href: '/user', current: false, permission: 'admin' },
 	{ name: '畫面觀看', href: '/snapshots', current: false, permission: 'viewer' },
 	{ name: '自動儲存', href: '/scheduler', current: false, permission: 'editor' },
+	{ name: '資源回收桶', href: '/restore', current: false, permission: 'editor' },
 ];
 let isLoginPage = ref(route.path === '/login');
 watch(
