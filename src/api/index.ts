@@ -266,7 +266,7 @@ export interface Snapshot {
 	path: string;
 	image_path?: string;
 	thumbnail_path: string;
-	imei: number;
+	imei: string;
 }
 
 export interface VideoInput {

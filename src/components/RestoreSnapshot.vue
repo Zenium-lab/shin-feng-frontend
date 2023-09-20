@@ -35,11 +35,11 @@
 						<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 							<thead class="bg-gray-50 dark:bg-slate-800">
 								<tr>
-									<th scope="col" class="py-3 pl-6 text-left">
+									<!-- <th scope="col" class="py-3 pl-6 text-left">
 										<div class="flex items-center gap-x-2">
 											<span class="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-gray-200"> 圖片 </span>
 										</div>
-									</th>
+									</th> -->
 
 									<th scope="col" class="py-3 pl-6 text-left">
 										<div class="flex items-center gap-x-2">
@@ -71,13 +71,13 @@
 											</label>
 										</div>
 									</td> -->
-									<td class="h-px w-px whitespace-nowrap">
+									<!-- <td class="h-px w-px whitespace-nowrap">
 										<div class="py-3 pl-6 pr-6">
 											<div class="flex items-center gap-x-3">
 												<img class="inline-block h-[2.375rem] w-[2.375rem] rounded-full" :src="s.image_path" alt="Image Description" />
 											</div>
 										</div>
-									</td>
+									</td> -->
 
 									<td class="h-px w-px whitespace-nowrap">
 										<div class="py-3 pl-6 pr-6">
@@ -153,35 +153,49 @@
 	<!-- End Table Section -->
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import * as API from '@/api';
 import { useMessage } from 'naive-ui';
 import { timestampToTime } from '@/utils/date';
+import { useIpcamStore } from '@/stores/ipcam';
+const ipcamStore = useIpcamStore();
 
 const message = useMessage();
+const selectedIPCam = computed({
+	get(): API.IPCam {
+		return ipcamStore.ipcam || '';
+	},
+	set(newIPCam: API.IPCam) {
+		ipcamStore.setIpcam(newIPCam);
+	},
+});
 
-const deletedSnapshots = ref<API.Snapshot[]>([]);
+const allDeletedSnapshots = ref<API.Snapshot[]>([]);
 onMounted(async () => {
 	API.listDeletedSnapshots().then((res) => {
-		deletedSnapshots.value = res.data;
+		allDeletedSnapshots.value = res.data;
 		// 下載每一個 snapshot的thumbnail path
-		deletedSnapshots.value.forEach((s) => {
-			API.downloadThumbnailById(s.id)
-				.then((base64Img) => {
-					s.image_path = base64Img;
-				})
-				.catch((err) => {
-					message.error('預覽圖下載失敗');
-					console.error(err);
-				});
-		});
+		// deletedSnapshots.value.forEach((s) => {
+		// 	API.downloadThumbnailById(s.id)
+		// 		.then((base64Img) => {
+		// 			s.image_path = base64Img;
+		// 		})
+		// 		.catch((err) => {
+		// 			message.error('預覽圖下載失敗');
+		// 			console.error(err);
+		// 		});
+		// });
 	});
+});
+// 根據ipcam篩選後的 snapshots
+const deletedSnapshots = computed(() => {
+	return allDeletedSnapshots.value.filter((s) => s.imei === selectedIPCam.value);
 });
 const handleRestore = (id: number) => {
 	API.restoreDeletedSnapshot(id)
 		.then((_) => {
 			message.success('復原成功');
-			deletedSnapshots.value = deletedSnapshots.value.filter((s) => s.id !== id);
+			allDeletedSnapshots.value = allDeletedSnapshots.value.filter((s) => s.id !== id);
 		})
 		.catch((err) => {
 			message.error('復原失敗');
