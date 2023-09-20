@@ -1,4 +1,8 @@
 FROM node:18-alpine as build-stage
+
+ARG VITE_APP_MODE
+ENV VITE_APP_MODE=$VITE_APP_MODE
+
 RUN mkdir -p /app
 WORKDIR /app
 COPY . .
