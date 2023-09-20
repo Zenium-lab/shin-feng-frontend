@@ -21,6 +21,17 @@ export const timestampToTime = (timestamp: number | undefined) => {
 
 	return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
+export const timestampToDate = (timestamp: number | undefined) => {
+	if (timestamp === undefined) {
+		return null;
+	}
+	const date = new Date(timestamp * 1000);
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+
+	return `${year}-${month}-${day}`;
+};
 // 轉換日期和時間為時間戳記
 export const timeToTimestamp = (date: string, time: string): number => {
 	const dateTimeString = `${date}T${time}:00`;

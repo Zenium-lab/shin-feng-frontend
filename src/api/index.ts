@@ -102,6 +102,10 @@ export const listSnapshotsInRange = async (imei: string, startTime: number, endT
 	}).then((response) => response.data || []);
 };
 
+// 獲取指定IPCam的紀錄最早時間和最晚時間
+export const getSnapshotTimeRange = async (imei: string): Promise<TimeRange> => {
+	return API.get(`/snapshots/range/${imei}`).then((response) => response.data);
+};
 // 上傳一張照片
 export const createSnapshot = (ipcamImei: string, image: File, createdAt?: number): Promise<void> => {
 	const formData = new FormData();
@@ -205,7 +209,6 @@ export const listScheduleByIPCam = (imei: IPCam) => {
 		}
 	);
 };
-
 // 更新排程設定
 export const updateSchedule = (schedule: ScheduleConfig) => {
 	if (!OnlyEditorCanSchedule()) {
@@ -233,6 +236,10 @@ export const getVideoProgress = (videoId: number): WebSocket => {
 };
 
 // 型別定義
+export interface TimeRange {
+	first_created_time: number;
+	last_created_time: number;
+}
 export interface Progress {
 	videoId: number;
 	progress: number;

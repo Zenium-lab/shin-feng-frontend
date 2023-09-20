@@ -5,16 +5,34 @@
 		<div class="col-span-1">
 			<TitleSection title="畫面觀看" subtitle="選擇日期，觀看影片" />
 		</div>
+		<!-- 顯示他的IPCam 的起始結束時間 -->
+
 		<!-- 選擇 IPCam 的 dropdown -->
 		<div class="col-span-1 flex items-center justify-center lg:justify-end">
 			<IpcamDropdown />
 		</div>
 	</div>
 	<!-- 日期 -->
-	<div class="flex items-center justify-center gap-4">
+	<div class="flex items-center justify-center gap-8">
 		<label for="startDate" class="text-center text-lg font-medium text-gray-500">請選擇日期</label>
 		<div class="">
-			<input type="date" id="startDate" class="form-input" v-model="selectDate" @change="handleDate()" />
+			<input
+				type="date"
+				id="startDate"
+				class="form-input"
+				:min="timestampToDate(ipcamTimeRange.first_created_time)"
+				:max="timestampToDate(ipcamTimeRange.last_created_time)"
+				v-model="selectDate"
+				@change="handleDate()"
+			/>
+		</div>
+		<div class="flex flex-col items-end justify-end">
+			<p class="text-gray-500">
+				照片紀錄：
+				{{ ipcamTimeRange.first_created_time !== 0 ? timestampToDate(ipcamTimeRange.first_created_time) : '尚無資料' }}
+				~
+				{{ ipcamTimeRange.last_created_time !== 0 ? timestampToDate(ipcamTimeRange.last_created_time) : '-' }}
+			</p>
 		</div>
 	</div>
 	<!-- 圖片 -->
@@ -80,10 +98,10 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import TitleSection from '@/components/TitleSection.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
-import { getStartEndOfDate, timestampToTime } from '@/utils/date';
+import { getStartEndOfDate, timestampToTime, timestampToDate } from '@/utils/date';
 import * as API from '@/api';
 import { useMessage, NModal, NCard, NStatistic } from 'naive-ui';
 import { useIpcamStore } from '@/stores/ipcam';
@@ -96,7 +114,10 @@ const message = useMessage();
 const isLoading = ref(false);
 const selectDate = ref('');
 const selectedIdx = ref(0);
-
+const ipcamTimeRange: API.TimeRange = reactive({
+	first_created_time: 0,
+	last_created_time: 0,
+});
 const showModal = ref(false);
 const selectedIPCam = computed({
 	get(): IPCam {
@@ -106,10 +127,24 @@ const selectedIPCam = computed({
 		ipcamStore.setIpcam(newIPCam);
 	},
 });
-
+const getTimeRange = () => {
+	API.getSnapshotTimeRange(selectedIPCam.value!)
+		.then((res) => {
+			ipcamTimeRange.first_created_time = res.first_created_time;
+			ipcamTimeRange.last_created_time = res.last_created_time;
+			resetDate();
+		})
+		.catch((err) => {
+			console.error(err);
+		});
+};
 onMounted(() => {
 	// 刷新日期
-	resetDate();
+
+	// 取得該IPCam的時間範圍
+	if (selectedIPCam.value) {
+		getTimeRange();
+	}
 });
 
 // 如果selectedIPCam改變，就重新取得videoList
@@ -144,7 +179,12 @@ const resetDate = () => {
 	const month = (today.getMonth() + 1).toString().padStart(2, '0');
 	const date = today.getDate().toString().padStart(2, '0');
 
-	selectDate.value = `${year}-${month}-${date}`;
+	const todayStr = `${year}-${month}-${date}`;
+	if (ipcamTimeRange.last_created_time !== 0) {
+		selectDate.value = timestampToDate(ipcamTimeRange.last_created_time)!;
+	} else {
+		selectDate.value = todayStr;
+	}
 };
 
 // 声明一个 debounce 函数
