@@ -20,8 +20,8 @@
 				type="date"
 				id="startDate"
 				class="form-input"
-				:min="timestampToDate(ipcamTimeRange.first_created_time)"
-				:max="timestampToDate(ipcamTimeRange.last_created_time)"
+				:min="timestampToDate(ipcamTimeRange.first_created_time)!"
+				:max="timestampToDate(ipcamTimeRange.last_created_time)!"
 				v-model="selectDate"
 				@change="handleDate()"
 			/>
