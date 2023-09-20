@@ -10,7 +10,7 @@ import vue from '@vitejs/plugin-vue';
 export default defineConfig({
 	plugins: [vue()],
 	root: './',
-	base: process.env.VITE_APP_MODE !== 'staging' ? '/shin-feng-frontend' : '',
+	base: process.env.VITE_APP_MODE !== 'staging' ? '/shin-feng-frontend' : '/',
 	resolve: {
 		alias: {
 			'@': fileURLToPath(new URL('./src', import.meta.url)),
