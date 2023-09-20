@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/HomeView.vue';
 import Video from '../views/VideoView.vue';
 import Login from '../views/LoginView.vue';
@@ -6,49 +6,50 @@ import VideoSchedulerView from '../views/VideoSchedulerView.vue';
 import VideoMaker from '../views/VideoMakerView.vue';
 import Role from '../views/RoleView.vue';
 import SnapShot from '../views/SnapShotView.vue';
+import RestoreSnapshot from '../views/RestoreSnapshotView.vue';
 import { useAuthStore } from '@/stores/auth';
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'Home',
-      component: Home,
-      meta: { requiresAuth: true } // 需要身份驗證
+	history: createWebHistory(import.meta.env.BASE_URL),
+	routes: [
+		{
+			path: '/',
+			name: 'Home',
+			component: Home,
+			meta: { requiresAuth: true }, // 需要身份驗證
+		},
 
-    },
-
-    {
-      path: '/login',
-      name: 'Login',
-      component: Login,
-    },
-    { path: '/video/:id', component: Video, meta: { requiresAuth: true } },
-    { path: '/video', component: VideoMaker, meta: { requiresAuth: true } },
-    { path: '/scheduler', component: VideoSchedulerView, meta: { requiresAuth: true } },
-    { path: '/user', component: Role, meta: { requiresAuth: true } },
-    { path: '/snapshots', component: SnapShot, meta: { requiresAuth: true } },
-  ]
-})
+		{
+			path: '/login',
+			name: 'Login',
+			component: Login,
+		},
+		{ path: '/video/:id', component: Video, meta: { requiresAuth: true } },
+		{ path: '/video', component: VideoMaker, meta: { requiresAuth: true } },
+		{ path: '/scheduler', component: VideoSchedulerView, meta: { requiresAuth: true } },
+		{ path: '/user', component: Role, meta: { requiresAuth: true } },
+		{ path: '/snapshots', component: SnapShot, meta: { requiresAuth: true } },
+		{ path: '/restore', component: RestoreSnapshot, meta: { requiresAuth: true } },
+	],
+});
 
 // 處理登入邏輯
 router.beforeEach((to, _, next) => {
-  const authStore = useAuthStore();
-  if (import.meta.env.VITE_APP_MODE === 'dev') {
-    authStore.login('test', {
-      id: 1,
-      name: 'test',
-      role: '管理員',
-      account: 'test',
-    });
-  }
-  if (to.meta.requiresAuth && !authStore.token && to.path !== '/login' && import.meta.env.VITE_APP_MODE !== 'dev') {
-    // 如果路由需要身份驗證且使用者未登入，導向登入頁面
-    next('/login');
-  } else {
-    // 否則正常進入
-    next();
-  }
+	const authStore = useAuthStore();
+	if (import.meta.env.VITE_APP_MODE === 'dev') {
+		authStore.login('test', {
+			id: 1,
+			name: 'test',
+			role: '管理員',
+			account: 'test',
+		});
+	}
+	if (to.meta.requiresAuth && !authStore.token && to.path !== '/login' && import.meta.env.VITE_APP_MODE !== 'dev') {
+		// 如果路由需要身份驗證且使用者未登入，導向登入頁面
+		next('/login');
+	} else {
+		// 否則正常進入
+		next();
+	}
 });
 
-export default router
+export default router;

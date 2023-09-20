@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useRouter } from 'vue-router';
-import { OnlyAdminCanDelete } from './permission';
+import { OnlyAdminCanDelete, OnlyEditorCanSchedule } from './permission';
 import { useAuthStore } from '@/stores/auth';
 const router = useRouter();
 const API = axios.create({
@@ -90,6 +90,7 @@ export const deleteIPCam = (imei: IPCam): Promise<void> => {
 	}
 	return API.delete(`/ipcams/${imei}`);
 };
+
 // 獲取指定時間段內的截圖列表
 export const listSnapshotsInRange = async (imei: string, startTime: number, endTime: number): Promise<Snapshot[]> => {
 	return API.get('/snapshots', {
@@ -140,11 +141,24 @@ export const deleteSnapshotById = (snapshotId: number) => {
 	}
 	return API.delete<void>(`/snapshots/${snapshotId}`);
 };
+
+// 取得已刪除的照片
+export const listDeletedSnapshots = () => {
+	return API.get<Snapshot[]>('/snapshots/deleted') || [];
+};
+
+// 復原已刪除的照片
+export const restoreDeletedSnapshot = (snapshotId: number) => {
+	return API.put<void>(`/snapshots/restore/${snapshotId}`);
+};
+
 // 下載照片的縮圖
 export const downloadThumbnailById = async (snapshotId: number) => {
 	return API.get<File>(`/snapshots/download/thumbnail/${snapshotId}`, {
 		responseType: 'blob',
-	}).then((response) => response.data);
+	})
+		.then((response) => response.data)
+		.then((blob) => URL.createObjectURL(blob));
 };
 
 //
@@ -162,8 +176,8 @@ export const downloadVideoById = async (videoId: number) => {
 };
 
 // 取得所有影片
-export const getAllVideos = () => {
-	return API.get<Video[]>('/videos') || [];
+export const getAllVideos = (imei?: string) => {
+	return API.get<Video[]>('/videos', { params: { imei: imei } }) || [];
 };
 
 // 請求建立影片
@@ -178,7 +192,27 @@ export const deleteVideo = (videoId: number) => {
 	}
 	return API.delete<void>(`/videos/${videoId}`);
 };
+// 獲取排程設定 (BY imei)
+export const listScheduleByIPCam = (imei: IPCam) => {
+	return (
+		API.get<ScheduleConfig>(`/videos/schedule`, { params: { imei: imei } }) || {
+			imei: null,
+			auto_save: false,
+			auto_save_weekday: 1,
+			auto_save_period: 1,
+			auto_save_framerate: 5,
+			auto_save_frameratio: 1,
+		}
+	);
+};
 
+// 更新排程設定
+export const updateSchedule = (schedule: ScheduleConfig) => {
+	if (!OnlyEditorCanSchedule()) {
+		return Promise.reject('權限不足');
+	}
+	return API.put<void>('/videos/schedule', schedule);
+};
 // 取消製作中的影片
 export const cancelCreateVideo = (videoId: number) => {
 	return API.delete<void>(`/videos/cancel/${videoId}`);
@@ -261,4 +295,13 @@ export interface UserMeta {
 
 export interface User extends UserMeta {
 	password: string;
+}
+
+export interface ScheduleConfig {
+	imei: string | null;
+	auto_save: boolean;
+	auto_save_weekday: number | null;
+	auto_save_period: number | null;
+	auto_save_framerate: number | null;
+	auto_save_frameratio: number | null;
 }

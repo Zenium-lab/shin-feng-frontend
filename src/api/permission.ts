@@ -6,3 +6,11 @@ export const OnlyAdminCanDelete = () => {
 	}
 	return true;
 };
+
+export const OnlyEditorCanSchedule = () => {
+	const authStore = useAuthStore();
+	if (authStore.userRole !== '管理員' && authStore.userRole !== '編輯者') {
+		return false;
+	}
+	return true;
+};

@@ -1,46 +1,25 @@
 <template>
 	<LoadingSpinner v-if="isLoading"></LoadingSpinner>
-	<div class="grid grid-cols-1 items-center gap-4 lg:grid-cols-3">
-		<!-- 標題 -->
+	<!-- 標題 -->
+	<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 		<div class="col-span-1">
 			<TitleSection title="畫面觀看" subtitle="選擇日期，觀看影片" />
 		</div>
-		<!-- 日期 -->
-		<div class="col-span-1 w-full items-center gap-4">
-			<label for="startDate" class="w-1/3 text-center text-lg font-medium text-gray-500">選擇日期</label>
-			<div class="flex w-2/3 items-center gap-2">
-				<input type="date" id="startDate" class="form-input" v-model="selectDate" @change="handleDate()" />
-			</div>
+		<!-- 選擇 IPCam 的 dropdown -->
+		<div class="col-span-1 flex items-center justify-center lg:justify-end">
+			<IpcamDropdown />
 		</div>
-		<div class="relative col-span-1 inline-block w-64">
-			<n-select
-				v-model:value="selectedIPCam"
-				:options="
-					ipcamList.map((ipcam) => ({
-						label: ipcam,
-						value: ipcam,
-					}))
-				"
-			/>
-			<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-				<svg
-					class="h-4 w-4 fill-current"
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 20 20"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				>
-					<path d="M7 7l3-3 3 3m0 6l-3 3-3-3" />
-				</svg>
-			</div>
+	</div>
+	<!-- 日期 -->
+	<div class="flex items-center justify-center gap-4">
+		<label for="startDate" class="text-center text-lg font-medium text-gray-500">請選擇日期</label>
+		<div class="">
+			<input type="date" id="startDate" class="form-input" v-model="selectDate" @change="handleDate()" />
 		</div>
 	</div>
 	<!-- 圖片 -->
 	<div class="mx-auto mt-8 max-w-3xl overflow-hidden rounded-lg bg-white shadow-lg">
-		<a v-if="snapshots.length > 0 && snapshots[selectedIdx].image_path" :href="snapshots[selectedIdx].path" target="_blank">
+		<a v-if="snapshots.length > 0 && snapshots[selectedIdx].image_path" :href="snapshots[selectedIdx].image_path" target="_blank">
 			<img class="h-96 w-full object-cover" :src="snapshots[selectedIdx].image_path" alt="縮時截圖載入中" />
 		</a>
 		<div v-else class="h-96 w-full animate-pulse bg-slate-400"></div>
@@ -106,10 +85,11 @@ import TitleSection from '@/components/TitleSection.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { getStartEndOfDate, timestampToTime } from '@/utils/date';
 import * as API from '@/api';
-import { useMessage, NSelect, NModal, NCard, NStatistic } from 'naive-ui';
+import { useMessage, NModal, NCard, NStatistic } from 'naive-ui';
 import { useIpcamStore } from '@/stores/ipcam';
 import { IPCam } from '@/api';
 import debounce from 'lodash.debounce';
+import IpcamDropdown from '@/components/IpcamDropdown.vue';
 
 const ipcamStore = useIpcamStore();
 const message = useMessage();
@@ -117,7 +97,6 @@ const isLoading = ref(false);
 const selectDate = ref('');
 const selectedIdx = ref(0);
 
-const ipcamList = ref<API.IPCam[]>([]);
 const showModal = ref(false);
 const selectedIPCam = computed({
 	get(): IPCam {
@@ -129,12 +108,8 @@ const selectedIPCam = computed({
 });
 
 onMounted(() => {
-	API.listIPCams().then((res) => {
-		ipcamList.value = res.data || [];
-		if (selectedIPCam.value === '' && ipcamList.value.length > 0) {
-			selectedIPCam.value = ipcamList.value[0];
-		}
-	});
+	// 刷新日期
+	resetDate();
 });
 
 // 如果selectedIPCam改變，就重新取得videoList
@@ -143,7 +118,7 @@ watch(selectedIPCam, async (newIPCam, oldIPCam) => {
 		// 清空snapshots, selectedIdx, selectDate
 		snapshots.value = [];
 		selectedIdx.value = 0;
-		selectDate.value = '';
+		resetDate();
 	}
 });
 const downloadSnapshotById = (id: number) => {
@@ -160,10 +135,20 @@ const downloadSnapshotById = (id: number) => {
 	return Promise.resolve();
 };
 
-// 声明一个 debounce 函数
-const debouncedFunction = debounce(async (newIdxDate, oldIdxDate) => {
-	console.log('debounce');
+// Reset selectedDate to today
+const resetDate = () => {
+	const today = new Date();
+	const year = today.getFullYear();
 
+	// 如果月份或日期是單一數字，將其格式化為兩位數
+	const month = (today.getMonth() + 1).toString().padStart(2, '0');
+	const date = today.getDate().toString().padStart(2, '0');
+
+	selectDate.value = `${year}-${month}-${date}`;
+};
+
+// 声明一个 debounce 函数
+const debouncedFunction = debounce(async (newIdxDate: [number, string], oldIdxDate: [number, string]) => {
 	const [_, oldDate] = oldIdxDate;
 	const [newIdx, newDate] = newIdxDate;
 	// 如果日期改变，清空image_path
@@ -172,6 +157,7 @@ const debouncedFunction = debounce(async (newIdxDate, oldIdxDate) => {
 			snapshot.image_path = undefined;
 			selectedIdx.value = 0;
 		});
+		handleDate();
 	}
 	if (snapshots.value.length > 0 && snapshots.value[newIdx].image_path === undefined) {
 		try {
@@ -183,7 +169,7 @@ const debouncedFunction = debounce(async (newIdxDate, oldIdxDate) => {
 	}
 }, 1000);
 
-//  如果selectedIndex改變，下載該照片
+//  如果selectedIndex或selectDate改變，下載該照片
 watch([selectedIdx, selectDate], (newIdxDate, oldIdxDate) => {
 	debouncedFunction(newIdxDate, oldIdxDate);
 });
@@ -194,7 +180,7 @@ const handleDate = () => {
 	const { start, end } = getStartEndOfDate(selectDate.value);
 	if (start > new Date()) {
 		message.error('開始時間不可大於今天');
-		selectDate.value = '';
+		resetDate();
 		return;
 	}
 

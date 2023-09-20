@@ -245,7 +245,7 @@ onMounted(async () => {
 const getThumbnailById = async (snapshotId: number): Promise<string> => {
 	try {
 		const res = await API.downloadThumbnailById(snapshotId);
-		return URL.createObjectURL(res);
+		return res;
 	} catch (error) {
 		console.error(error);
 		return '';
