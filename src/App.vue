@@ -7,6 +7,7 @@ import { NMessageProvider } from 'naive-ui';
 import router from './router';
 const authStore = useAuthStore();
 const route = useRoute();
+const isDemo = ref(import.meta.env.VITE_APP_MODE === 'demo');
 const navigations = [
 	{ name: '影片瀏覽', href: '/', current: true, permission: 'viewer' },
 	{ name: '影片剪輯', href: '/video', current: false, permission: 'editor' },
@@ -123,7 +124,7 @@ const handleClick = (nav: any) => {
 		<Transition name="slide-fancy" mode="out-in">
 			<div v-show="isMobileMenuOpen" class="fixed z-20 w-full">
 				<div class="flex flex-col items-center justify-center bg-zinc-50 p-2">
-					<template v-for="(nav, index) in navigations">
+					<template v-for="(nav, index) in navigations" :key="index">
 						<RouterLink :to="nav.href" v-if="hasPermission(nav.permission)" class="w-full">
 							<div
 								:key="index"
@@ -141,7 +142,7 @@ const handleClick = (nav: any) => {
 				</div>
 			</div>
 		</Transition>
-
+		<div v-if="isDemo" class="fixed bottom-0 right-1 z-50 select-none bg-transparent font-mono text-[88px] text-black/10 shadow-slate-600">Demo</div>
 		<!-- Mobile menu overlay to close the menu when clicked -->
 		<div id="mobile-menu-overlay" v-if="isMobileMenuOpen" @click="toggleMobileMenu" class="fixed inset-0 z-10 bg-black opacity-50"></div>
 		<div class="relative min-h-screen">
