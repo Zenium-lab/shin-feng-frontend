@@ -58,7 +58,7 @@
 							</thead>
 
 							<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-								<tr v-for="s in deletedSnapshots">
+								<tr v-for="(s, index) in deletedSnapshots" :key="`restore-${index}`">
 									<!-- <td class="h-px w-px whitespace-nowrap">
 										<div class="py-3 pl-6">
 											<label for="hs-at-with-checkboxes-1" class="flex">
@@ -153,23 +153,13 @@
 	<!-- End Table Section -->
 </template>
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useIpcamStore } from '@/stores/ipcam';
-import { IPCam } from '@/api';
+import { ref, onMounted } from 'vue';
 import * as API from '@/api';
 import { useMessage } from 'naive-ui';
 import { timestampToTime } from '@/utils/date';
 
 const message = useMessage();
-const ipcamStore = useIpcamStore();
-const selectedIPCam = computed({
-	get(): IPCam {
-		return ipcamStore.ipcam || '';
-	},
-	set(newIPCam: IPCam) {
-		ipcamStore.setIpcam(newIPCam);
-	},
-});
+
 const deletedSnapshots = ref<API.Snapshot[]>([]);
 onMounted(async () => {
 	API.listDeletedSnapshots().then((res) => {

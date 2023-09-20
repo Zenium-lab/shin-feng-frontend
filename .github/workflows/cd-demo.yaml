@@ -1,0 +1,35 @@
+name: Build and Deploy
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+        
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'yarn'
+
+      - name: Install and Build 🔧 
+        env:
+          VITE_APP_MODE: demo
+          VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
+          VITE_BASE_PATH: ${{ secrets.VITE_BASE_PATH }}
+        run: |
+          yarn install && yarn build
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: ./dist # The folder the action should deploy.
