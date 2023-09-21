@@ -96,9 +96,9 @@ const downloading = ref(true);
 
 // 表單資料
 const startDate = ref('');
-const startTime = ref('');
+const startTime = ref('00:00');
 const endDate = ref('');
-const endTime = ref('');
+const endTime = ref('00:00');
 const frameRate = ref(5);
 const frameRatio = ref(1);
 
