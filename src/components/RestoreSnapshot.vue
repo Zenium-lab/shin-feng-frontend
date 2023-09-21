@@ -171,21 +171,26 @@ const selectedIPCam = computed({
 });
 
 const allDeletedSnapshots = ref<API.Snapshot[]>([]);
-onMounted(async () => {
-	API.listDeletedSnapshots().then((res) => {
-		allDeletedSnapshots.value = res.data;
-		// 下載每一個 snapshot的thumbnail path
-		// deletedSnapshots.value.forEach((s) => {
-		// 	API.downloadThumbnailById(s.id)
-		// 		.then((base64Img) => {
-		// 			s.image_path = base64Img;
-		// 		})
-		// 		.catch((err) => {
-		// 			message.error('預覽圖下載失敗');
-		// 			console.error(err);
-		// 		});
-		// });
-	});
+onMounted(() => {
+	API.listDeletedSnapshots()
+		.then((res) => {
+			allDeletedSnapshots.value = res.data === null ? [] : res.data;
+			// 下載每一個 snapshot的thumbnail path
+			// deletedSnapshots.value.forEach((s) => {
+			// 	API.downloadThumbnailById(s.id)
+			// 		.then((base64Img) => {
+			// 			s.image_path = base64Img;
+			// 		})
+			// 		.catch((err) => {
+			// 			message.error('預覽圖下載失敗');
+			// 			console.error(err);
+			// 		});
+			// });
+		})
+		.catch((err) => {
+			message.error('資源回收桶請求失敗');
+			console.error(err);
+		});
 });
 // 根據ipcam篩選後的 snapshots
 const deletedSnapshots = computed(() => {
