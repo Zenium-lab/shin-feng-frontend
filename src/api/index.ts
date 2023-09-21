@@ -148,9 +148,6 @@ export const deleteSnapshotById = (snapshotId: number) => {
 
 // 取得已刪除的照片
 export const listDeletedSnapshots = () => {
-	if (!OnlyAdminCanDelete()) {
-		return Promise.reject('權限不足');
-	}
 	return API.get<Snapshot[]>('/snapshots/deleted') || [];
 };
 
