@@ -149,11 +149,13 @@ onMounted(() => {
 
 // 如果selectedIPCam改變，就重新取得videoList
 watch(selectedIPCam, async (newIPCam, oldIPCam) => {
+	console.log('selectedIPCam changed');
 	if (newIPCam !== oldIPCam) {
 		// 清空snapshots, selectedIdx, selectDate
 		snapshots.value = [];
 		selectedIdx.value = 0;
-		resetDate();
+		getTimeRange();
+		handleDate();
 	}
 });
 const downloadSnapshotById = (id: number) => {
