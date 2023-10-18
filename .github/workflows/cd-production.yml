@@ -37,3 +37,8 @@ jobs:
           echo "$PRIVATE_KEY" > private_key && 
           chmod 600 private_key &&
           ssh -o StrictHostKeyChecking=no -i private_key root@${HOSTNAME} "echo 'todo' "
+          scp -o StrictHostKeyChecking=no -i private_key -r dist/ ${USER_NAME}@${HOSTNAME}:/tmp/html
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "sudo touch /var/www/html/test.test"
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "sudo rm -rf /var/www/html/*"
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "sudo mkdir -p /var/www/html"
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "sudo mv /tmp/html /var/www/"
