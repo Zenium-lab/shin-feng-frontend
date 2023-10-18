@@ -56,7 +56,7 @@ const getVideoDetail = async () => {
 let videoUrl = ref<string>();
 
 const getVideoSrc = () => {
-	return `${import.meta.env.VITE_BASE_URL}/api/v1/videos/download/${videoId}`;
+	return `${import.meta.env.VITE_BASE_URL}${import.meta.env.VITE_BASE_PATH}/videos/download/${videoId}`;
 };
 const creator = ref();
 const creationTime = ref();
