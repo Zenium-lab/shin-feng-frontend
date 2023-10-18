@@ -57,7 +57,6 @@ jobs:
             VITE_APP_MODE=production
             VITE_BASE_URL=${{ secrets.VITE_PROD_BASE_URL }}
             VITE_BASE_PATH=${{ secrets.VITE_PROD_BASE_PATH }}
-
         
         env:
           VITE_APP_MODE: production
