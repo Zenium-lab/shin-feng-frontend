@@ -9,8 +9,6 @@ COPY . .
 RUN yarn
 RUN yarn build
 
-FROM nginx:stable-alpine as production-stage
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-RUN rm -rf /usr/share/nginx/html/*
-COPY --from=build-stage /app/dist /usr/share/nginx/html
-CMD ["nginx", "-g", "daemon off;"]
+FROM caddy:2.7.5-alpine as production-stage
+
+COPY --from=build-stage /app/dist /srv
