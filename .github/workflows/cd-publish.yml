@@ -43,7 +43,7 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: zeniumlab/skamera-fe
-          
+
       - 
         name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -53,7 +53,11 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VITE_APP_MODE=production
+            VITE_BASE_URL=${{ secrets.VITE_PROD_BASE_URL }}
+            VITE_BASE_PATH=${{ secrets.VITE_PROD_BASE_PATH }}
+
+        
         env:
           VITE_APP_MODE: production
-          VITE_BASE_URL: ${{ secrets.VITE_PROD_BASE_URL }}
-          VITE_BASE_PATH: ${{ secrets.VITE_PROD_BASE_PATH }}

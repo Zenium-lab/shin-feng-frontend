@@ -4,7 +4,7 @@ import { OnlyAdminCanDelete, OnlyEditorCanSchedule } from './permission';
 import { useAuthStore } from '@/stores/auth';
 const router = useRouter();
 const API = axios.create({
-	baseURL: import.meta.env.VITE_BASE_URL + '/api/v1', // 請根據實際情況修改基礎 URL
+	baseURL: import.meta.env.VITE_BASE_URL + import.meta.env.VITE_BASE_PATH,
 	headers: {
 		'Content-Type': 'application/json',
 	},
