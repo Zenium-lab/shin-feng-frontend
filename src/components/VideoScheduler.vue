@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 import { NModal, NCard } from 'naive-ui';
 import { IPCam, ScheduleConfig, listScheduleByIPCam, updateSchedule } from '@/api';
 import { useMessage } from 'naive-ui';
@@ -131,8 +131,7 @@ const ScheduleWeekdayToScheduleTiming: Record<number, ScheduleWeekday> = {
 	6: '星期六',
 	7: '星期日',
 };
-// 取得目前的排程設定
-onMounted(() => {
+const refreshPage = async () => {
 	listScheduleByIPCam(props.ipcam)
 		.then((res) => {
 			const schedule = res.data;
@@ -141,12 +140,28 @@ onMounted(() => {
 			scheduleTiming.value = schedule.auto_save_weekday ? ScheduleWeekdayToScheduleTiming[schedule.auto_save_weekday] : '星期一';
 			frameRate.value = schedule.auto_save_framerate ? schedule.auto_save_framerate : 5;
 			frameRatio.value = schedule.auto_save_frameratio ? schedule.auto_save_frameratio : 1;
+			message.success('取得排程設定成功');
 		})
 		.catch((err) => {
 			message.error('取得排程設定失敗');
 			console.error(err);
 		});
+};
+// 取得目前的排程設定
+onBeforeMount(() => {
+	refreshPage();
 });
+
+// 監聽 ipcam prop 的變化
+watch(
+    () => props.ipcam, 
+    (newVal, oldVal) => {
+        if (newVal !== oldVal) {
+            refreshPage();
+        }
+    },
+);
+
 // 儲存按鈕
 const showModal = ref(false);
 const handleSave = () => {
