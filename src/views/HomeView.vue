@@ -20,8 +20,14 @@ const statusList: StatusInfo[] = reactive([
 const statusCounts = ref<Record<string, number>>({});
 const videoList = ref<Video[]>([]);
 const ipcamStore = useIpcamStore();
-const selectedIPCam = ref(ipcamStore.ipcam || '');
-
+const selectedIPCam = computed({
+	get(): API.IPCam {
+		return ipcamStore.ipcam || '';
+	},
+	set(newIPCam: API.IPCam) {
+		ipcamStore.setIpcam(newIPCam);
+	},
+});
 // Update status
 const updateStatus = (videoId: number, status: Status) => {
 	const video = videoList.value.find((video) => video.id === videoId);
@@ -55,8 +61,8 @@ const getVideoList = async () => {
 
 // 如果selectedIPCam改變，就重新取得videoList
 watch(selectedIPCam, async (_) => {
+	console.log('selectedIPCam changed');
 	videoList.value = await getVideoList();
-	// videoList.value = allVideos.filter((video) => video.imei === newIPCam);
 });
 
 // 如果videoList改變，就重新統計status
