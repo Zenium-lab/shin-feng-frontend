@@ -93,7 +93,7 @@ onMounted(async () => {
 });
 
 const refreshed = ref(false);
-const refreshVideoList = async (ipcam: string, interval: number = 0) => {
+const refreshVideoList = async (ipcam: string, interval = 0) => {
 	refreshed.value = false;
 	// isLoading.value = true;
 	if (interval > 0) {

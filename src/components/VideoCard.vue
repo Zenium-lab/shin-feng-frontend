@@ -22,7 +22,7 @@
 
 		<!-- 主要內容 -->
 		<div class="flex w-full flex-col items-start justify-center px-6 py-2 lg:w-2/3">
-			<div class="flex w-full flex-col items-center justify-center md:flex-row lg:gap-10">
+			<div class="flex w-full flex-col items-center justify-between px-6 md:flex-row lg:gap-10">
 				<!-- 開始時間和結束時間 -->
 				<div class="flex flex-col items-center justify-center gap-1">
 					<div class="flex w-full items-center justify-center">
@@ -57,8 +57,8 @@
 				v-if="props.video.status === '處理中' && progress.type === '下載中'"
 				class="grid w-full grid-cols-2 items-center justify-between gap-2 px-6 py-1 sm:grid-cols-3"
 			>
-				<div class="col-span-2 grid grid-cols-4">
-					<div class="col-span-3 h-6 rounded-lg bg-gray-200">
+				<div class="col-span-2 grid grid-cols-4" v-if="progress.progress !== 0">
+					<div class="col-span-3 h-5 rounded-lg bg-gray-200">
 						<div class="h-full rounded-lg bg-yellow-300" :style="{ width: `${progress.progress}%` }"></div>
 					</div>
 					<button
@@ -68,10 +68,11 @@
 						<img src="svgs/trash-yellow.svg" alt="圖標" class="h-4 w-4" />
 					</button>
 				</div>
+				<div class="col-span-2 grid grid-cols-4" v-else></div>
 				<div class="col-span-2 flex items-center justify-center gap-4 sm:col-span-1">
-					<div class="text-[1rem] font-normal leading-tight text-black">{{ progress.progress }}%</div>
+					<div v-if="progress.progress !== 0" class="text-[1rem] font-normal leading-tight text-black">{{ progress.progress }}%</div>
 					<n-spin :size="20" />
-					<div class="text-[0.9rem]">{{ progress.type }}</div>
+					<div class="text-[0.9rem]">{{ progress.progress === 0 ? '等待中' : progress.type }}</div>
 				</div>
 			</div>
 			<div
@@ -183,8 +184,8 @@ const formatTime = (seconds: number): string => {
 	return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 };
 
-// 如果現在狀態是處理中，定期使用websocket拿progress
-let websocket: WebSocket;
+function connectWebSocket() {
+	// 如果現在狀態是處理中，定期使用websocket拿progress
 if (props.video.status === '處理中') {
 	try {
 		const websocket = API.getVideoProgress(props.video.id);
@@ -216,20 +217,20 @@ if (props.video.status === '處理中') {
 		};
 		websocket.onclose = (_) => {
 			emit('refreshVideoList', props.video.imei, 2000);
-			console.log('websocket disconnected');
+			console.log("WebSocket連接已關閉，嘗試重連...");
+			setTimeout(connectWebSocket, 5000); // 5秒後嘗試重連
 		};
 		websocket.onerror = (event) => {
+			console.error('websocket error', event);
 			emit('refreshVideoList', props.video.imei, 2000);
-			console.error(event);
+			websocket.close();
 		};
 	} catch (err: unknown) {
 		console.error(err);
 	}
 }
-onUnmounted(() => {
-	if (websocket) websocket.close();
-});
-
+}
+connectWebSocket()
 // 縮圖載入
 const thumbnailSrc = ref('');
 onMounted(async () => {
