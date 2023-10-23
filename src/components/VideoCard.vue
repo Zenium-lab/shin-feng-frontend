@@ -57,7 +57,7 @@
 				v-if="props.video.status === '處理中' && progress.type === '下載中'"
 				class="grid w-full grid-cols-2 items-center justify-between gap-2 px-6 py-1 sm:grid-cols-3"
 			>
-				<div class="col-span-2 grid grid-cols-4">
+				<div class="col-span-2 grid grid-cols-4" v-if="progress.progress !== 0">
 					<div class="col-span-3 h-6 rounded-lg bg-gray-200">
 						<div class="h-full rounded-lg bg-yellow-300" :style="{ width: `${progress.progress}%` }"></div>
 					</div>
@@ -68,10 +68,11 @@
 						<img src="svgs/trash-yellow.svg" alt="圖標" class="h-4 w-4" />
 					</button>
 				</div>
+				<div class="col-span-2 grid grid-cols-4" v-else></div>
 				<div class="col-span-2 flex items-center justify-center gap-4 sm:col-span-1">
-					<div class="text-[1rem] font-normal leading-tight text-black">{{ progress.progress }}%</div>
+					<div v-if="progress.progress !== 0" class="text-[1rem] font-normal leading-tight text-black">{{ progress.progress }}%</div>
 					<n-spin :size="20" />
-					<div class="text-[0.9rem]">{{ progress.type }}</div>
+					<div class="text-[0.9rem]">{{ progress.progress === 0 ? '等待中' : progress.type }}</div>
 				</div>
 			</div>
 			<div
