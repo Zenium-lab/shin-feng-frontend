@@ -135,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { NSpin, useMessage, NModal, NCard } from 'naive-ui';
 import * as API from '@/api';
 import type { Video, Progress } from '@/api';
