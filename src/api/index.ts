@@ -277,6 +277,7 @@ export interface VideoInput {
 	start_time: number;
 	end_time: number;
 	fps: number;
+	sample_interval: number;
 	imei: string;
 }
 
