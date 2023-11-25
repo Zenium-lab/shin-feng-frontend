@@ -11,6 +11,7 @@ const API = axios.create({
 API.interceptors.request.use((config) => {
 	const authStore = useAuthStore();
 	const token = authStore.token;
+	console.log('token:', token);
 	if (token) {
 		config.headers['Authorization'] = `Bearer ${token}`;
 	}
@@ -23,7 +24,6 @@ API.interceptors.response.use(
 		return response;
 	},
 	(error) => {
-		// 处理响应错误
 		if (error.response) {
 			console.log('Response Error:', error.response.status);
 			console.log('Response Data:', error.response.data);
