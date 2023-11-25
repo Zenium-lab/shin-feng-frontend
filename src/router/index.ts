@@ -35,14 +35,6 @@ const router = createRouter({
 // 處理登入邏輯
 router.beforeEach((to, _, next) => {
 	const authStore = useAuthStore();
-	if (import.meta.env.VITE_APP_MODE === 'dev') {
-		authStore.login('test', {
-			id: 1,
-			name: 'test',
-			role: '管理員',
-			account: 'test',
-		});
-	}
 	if (to.meta.requiresAuth && !authStore.token && to.path !== '/login' && import.meta.env.VITE_APP_MODE !== 'dev') {
 		// 如果路由需要身份驗證且使用者未登入，導向登入頁面
 		next('/login');
