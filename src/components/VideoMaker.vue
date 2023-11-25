@@ -103,7 +103,7 @@ const downloading = ref(true);
 const startDate = ref('');
 const startTime = ref('00:00');
 const endDate = ref('');
-const endTime = ref('12:00');
+const endTime = ref('23:59');
 const frameRate = ref(5);
 const frameRatio = ref(1);
 
