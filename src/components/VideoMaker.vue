@@ -19,7 +19,7 @@
 					<div class="flex w-full items-center gap-4">
 						<label for="startDate" class="w-1/3 text-center text-lg font-medium text-gray-500">開始日期</label>
 						<div class="flex w-2/3 items-center gap-2">
-							<input type="date" id="startDate" class="form-input" v-model="startDate" />
+							<input type="date" id="startDate" class="form-input" :max="endDate || ''" v-model="startDate" />
 							<input type="time" id="startTime" class="form-input" v-model="startTime" />
 						</div>
 					</div>
@@ -27,7 +27,7 @@
 					<div class="flex items-center gap-4">
 						<label for="endDate" class="w-1/3 text-center text-lg font-medium text-gray-500">結束日期</label>
 						<div class="flex w-2/3 items-center gap-2">
-							<input type="date" id="endDate" class="form-input" v-model="endDate" />
+							<input type="date" id="endDate" class="form-input" :max="new Date().toISOString().slice(0, 10)" :min="startDate || ''" v-model="endDate" />
 							<input type="time" id="endTime" class="form-input" v-model="endTime" />
 						</div>
 					</div>
@@ -38,18 +38,23 @@
 							<option v-for="rate in frameRates" :key="rate" :value="rate">{{ rate }}</option>
 						</select>
 					</div>
-					<!-- 選擇抽取張數比例 -->
+					<!-- 選擇抽取間隔張數 -->
 					<div class="flex items-center gap-4">
-						<label for="frameRatio" class="w-1/3 text-center text-lg font-medium text-gray-500">抽取張數比例</label>
+						<label for="frameRatio" class="w-1/3 text-center text-lg font-medium text-gray-500">照片抽取間隔</label>
 						<select id="frameRatio" class="form-select" v-model="frameRatio">
-							<option v-for="ratio in frameRatios" :key="ratio" :value="ratio">{{ ratio }}</option>
+							<option v-for="ratio in sampleInterval" :key="ratio" :value="ratio">{{ ratio }}</option>
 						</select>
 					</div>
 				</form>
 				<div class="col-span-1 flex flex-col justify-end gap-6">
 					<!-- 製作進度提示 -->
 					<div v-if="downloading" class="flex w-full flex-col items-center justify-center gap-4">
-						<div class="rounded-lg bg-gray-600 px-2 py-1 text-lg text-gray-50">fps = 每秒播放張數/抽取張數比例</div>
+						<div class="rounded-lg bg-gray-500 px-2 py-1 text-lg text-gray-50">
+							<span class="underline underline-offset-4">照片抽取張數</span> = 製作時間內照片總量 ÷ 照片抽取間隔
+						</div>
+						<div class="rounded-lg bg-gray-700 px-2 py-1 text-lg text-gray-50">
+							<span class="font-bold">製作影片長度 </span> =<span class="underline underline-offset-4"> 照片抽取張數 </span> ÷ 每秒播放張數
+						</div>
 						<div class="text-justify text-lg text-gray-500">影片製作耗時，您可以隨時離開此頁面，製作將會在背景進行。</div>
 						<div class="text-justify text-lg text-gray-500">
 							如需察看進度，請至
@@ -149,7 +154,8 @@ const makeVideo = () => {
 		creator_id: authStore.userId!,
 		start_time: startTs,
 		end_time: endTs,
-		fps: frameRate.value / frameRatio.value,
+		fps: frameRate.value,
+		sample_interval: frameRatio.value,
 		imei: props.selectedIPCam,
 	});
 	startDate.value = '';
@@ -157,12 +163,12 @@ const makeVideo = () => {
 	endDate.value = '';
 	endTime.value = '';
 	inputIsValid.value = false;
-	message.info('影片製作中，請稍後至 #影片瀏覽 頁面查看');
+	message.info('製作請求已發送，請至 #影片瀏覽 頁面查看狀態');
 };
 
 // 選項列表
 const frameRates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-const frameRatios = [1, 2, 4, 8, 16, 32];
+const sampleInterval = [1, 2, 4, 8, 16, 32]; // 照片抽取間隔
 </script>
 
 <style>

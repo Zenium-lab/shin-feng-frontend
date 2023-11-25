@@ -1,8 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { useRouter } from 'vue-router';
 import { OnlyAdminCanDelete, OnlyEditorCanSchedule } from './permission';
 import { useAuthStore } from '@/stores/auth';
-const router = useRouter();
 const API = axios.create({
 	baseURL: import.meta.env.VITE_BASE_URL + import.meta.env.VITE_BASE_PATH,
 	headers: {
@@ -13,6 +11,7 @@ const API = axios.create({
 API.interceptors.request.use((config) => {
 	const authStore = useAuthStore();
 	const token = authStore.token;
+	console.log('token:', token);
 	if (token) {
 		config.headers['Authorization'] = `Bearer ${token}`;
 	}
@@ -25,21 +24,17 @@ API.interceptors.response.use(
 		return response;
 	},
 	(error) => {
-		// 处理响应错误
 		if (error.response) {
-			// 请求已发出，但服务器响应的状态码不在 2xx 范围内
 			console.log('Response Error:', error.response.status);
 			console.log('Response Data:', error.response.data);
 			// 处理特定的错误状态码
 			if (error.response.status === 401) {
-				{
-					router.push('/login');
-				}
+				const authStore = useAuthStore();
+				authStore.logout();
+				window.location.href = '/login';
 			} else if (error.request) {
-				// 请求已发出，但没有收到响应
 				console.log('No Response:', error.request);
 			} else {
-				// 发送请求时出错
 				console.log('Error:', error.message);
 			}
 			return Promise.reject(error);
@@ -277,6 +272,7 @@ export interface VideoInput {
 	start_time: number;
 	end_time: number;
 	fps: number;
+	sample_interval: number;
 	imei: string;
 }
 
