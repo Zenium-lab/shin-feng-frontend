@@ -32,9 +32,7 @@ API.interceptors.response.use(
 			console.log('Response Data:', error.response.data);
 			// 处理特定的错误状态码
 			if (error.response.status === 401) {
-				{
-					router.push('/login');
-				}
+				window.location.href = '/login';
 			} else if (error.request) {
 				// 请求已发出，但没有收到响应
 				console.log('No Response:', error.request);
