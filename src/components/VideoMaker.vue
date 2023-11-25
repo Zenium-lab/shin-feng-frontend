@@ -19,7 +19,7 @@
 					<div class="flex w-full items-center gap-4">
 						<label for="startDate" class="w-1/3 text-center text-lg font-medium text-gray-500">開始日期</label>
 						<div class="flex w-2/3 items-center gap-2">
-							<input type="date" id="startDate" class="form-input" v-model="startDate" />
+							<input type="date" id="startDate" class="form-input" :max="endDate || ''" v-model="startDate" />
 							<input type="time" id="startTime" class="form-input" v-model="startTime" />
 						</div>
 					</div>
@@ -27,7 +27,7 @@
 					<div class="flex items-center gap-4">
 						<label for="endDate" class="w-1/3 text-center text-lg font-medium text-gray-500">結束日期</label>
 						<div class="flex w-2/3 items-center gap-2">
-							<input type="date" id="endDate" class="form-input" v-model="endDate" />
+							<input type="date" id="endDate" class="form-input" :max="new Date().toISOString().slice(0, 10)" v-model="endDate" />
 							<input type="time" id="endTime" class="form-input" v-model="endTime" />
 						</div>
 					</div>
