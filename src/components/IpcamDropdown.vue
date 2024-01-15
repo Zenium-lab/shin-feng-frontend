@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeMount, ref } from 'vue';
 import { NSelect, useMessage, NModal, NCard } from 'naive-ui';
 import { useIpcamStore } from '@/stores/ipcam';
 import { IPCam, listIPCams, deleteIPCam, createIPCam } from '@/api';
@@ -33,8 +33,11 @@ const handleDeleteIPCam = () => {
 			});
 	}
 };
-onMounted(async () => {
+
+onBeforeMount(async () => {
+	loading.value = true;
 	ipcamList.value = await getIPCamList();
+
 	if (selectedIPCam.value === '' && ipcamList.value.length > 0) {
 		selectedIPCam.value = ipcamList.value[0];
 	}
@@ -46,6 +49,8 @@ const getIPCamList = async (): Promise<IPCam[]> => {
 	} catch (error) {
 		console.error(error);
 		return [];
+	} finally {
+		loading.value = false;
 	}
 };
 
@@ -65,12 +70,15 @@ const addIPCam = (imei: string) => {
 };
 const showModal = ref(false);
 const ipcamInput = ref('');
+const loading = ref(false);
 </script>
 
 <template>
 	<div class="col-span-1 flex items-center justify-center gap-3 lg:justify-end">
 		<div class="relative inline-block w-64">
 			<n-select
+				:loading="loading"
+				:disabled="loading"
 				v-model:value="selectedIPCam"
 				:options="
 					ipcamList.map((ipcam) => ({
